@@ -1,0 +1,38 @@
+[
+  {
+    "type": "route",
+    "path": "",
+    "label": "Introduction"
+  },
+  {
+    "type": "collection",
+    "path": "user-manual",
+    "label": "User Manual",
+    "children": [
+      {
+        "type": "route",
+        "path": "",
+        "label": "User Manual"
+      }
+    ]
+  },
+  {
+    "type": "collection",
+    "path": "developer-docs",
+    "label": "Developer Docs",
+    "children": [
+      {
+        "type": "collection",
+        "path": "guides",
+        "label": "Guides",
+        "children": [
+          {
+            "type": "route",
+            "path": "getting-started",
+            "label": "Getting Started"
+          }
+        ]
+      }
+    ]
+  }
+]

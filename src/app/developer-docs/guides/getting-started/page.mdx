@@ -1,0 +1,280 @@
+import Alert from '@/components/Alert';
+
+# Getting Started
+
+<Alert severity="warning">
+    This guide is meant to get you started with self-hosting a forumify instance. While you are in the right place if you already have server infrastructure, if you are not familiar with hosting websites, we recommend taking a look at our hosted options instead.
+</Alert>
+
+## Preparing your server
+
+To run forumify, you will need a server that supports SSH or any method to access the command line interface. We will be using ubuntu server as an example but you can pick your own flavor. These instructions should also work on Windows.
+
+The primary supported method for running forumify is by using [docker](https://www.docker.com/).
+
+Ensure docker is installed on your server:
+
+```
+$ docker -v
+Docker version x.x.x, build xxxxxx
+```
+
+(If you don’t have docker installed yet, please get it from [here](https://docs.docker.com/engine/install/).)
+
+## Installing forumify
+
+Create a directory in which your docker stack will live, if you already have other docker stacks, you could add it to an existing one as well. For this guide, we’ll start from scratch in your home directory.
+
+```
+$ mkdir ~/web && cd ~/web
+```
+
+Next up is downloading the [forumify production template](https://github.com/forumify/forumify-production-template), you can get it from git or download it as a zip and extract it.
+
+```
+$ git clone https://github.com/forumify/forumify-production-template.git forumify
+```
+
+This will install the basic setup in `~/web/forumify`.
+
+<Alert severity="info">
+    If you plan to extend or modify forumify we recommend forking the production template and cloning your fork instead. This way you can `git pull` your changes onto your server and redeploy when needed. See development setup guide for more info.
+</Alert>
+
+## Configuring docker compose
+
+Inside the `web` folder, we’ll create our docker-compose setup.
+
+Before we can run forumify, we need to configure some dependencies. We’ll start by writing a docker compose file to define our configuration:
+
+```docker
+$ touch docker-compose.yml
+```
+
+Open this `docker-compose.yml` with your favorite text editor and paste the following boilerplate:
+
+```docker
+services:
+
+volumes:
+```
+
+### MySQL
+
+If you already have an external MySQL server, you can skip this step.
+
+Modify the file as such:
+
+```
+services:
+    mysql:
+        image: mysql:latest
+        container_name: mysql
+        ports:
+            - '3306:3306'
+        environment:
+            MYSQL_ROOT_PASSWORD: 'root'
+        volumes:
+            - database_data:/var/lib/mysql
+        restart: unless-stopped
+
+volumes:
+    database_data:
+```
+
+Let’s start this up so we can create a database for forumify, and a user with restrictive permissions that the platform can use. Run the following command:
+
+```
+$ docker compose up -d
+✔ Container mysql  Started
+```
+
+<Alert severity="info">
+    If the `docker compose` command does not work, you have to install the [docker-compose-plugin](https://docs.docker.com/compose/install/linux/#install-using-the-repository) first.
+</Alert>
+
+If everything went well, you now have a MySQL server running on your system. Now let’s create the database and the user that forumify will be using. The easiest way to do so is to connect to your MySQL server using a GUI client, such as DBeaver, Navicat,… but for the sake of staying as generic as possible, we will be using the `mysql` client command that is available on most linux distros. If it’s not installed yet, please install it and connect to your server:
+
+<Alert severity="info">
+    If you want to use a GUI client from your computer to connect to your server, you should connect through an SSH tunnel to your sever, most clients will have this option, and then connect to localhost:3306.
+</Alert>
+
+```
+$ mysql -uroot -proot -h127.0.0.1
+mysql>
+```
+
+Let’s create the database named `forumify`, and a user named `forumify` that can access it, take note of the user’s password because you will need it soon.
+
+```docker
+$ mysql -uroot -proot -h127.0.0.1
+
+mysql> CREATE DATABASE forumify;
+Query OK, 1 row affected
+
+mysql> CREATE USER 'forumify'@'localhost' IDENTIFIED BY '<new user password>';
+Query OK, 0 rows affected
+
+mysql> GRANT ALL PRIVILEGES ON forumify.* TO 'forumify'@'localhost';
+Query OK, 0 rows affected
+
+mysql> exit
+Bye
+```
+
+Finally, you should change the root password to something else as well. Make sure you take note of it somewhere in case you need it in the future.
+
+```docker
+$ mysql -uroot -proot -h127.0.0.1
+
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED BY '<new root password>';
+Query OK, 0 rows affected
+
+mysql> exit
+Bye
+```
+
+### Forumify
+
+With mysql ready to go, the next step is to add forumify to our docker-compose file.
+
+```
+services:
+    mysql:
+        image: mysql:latest
+        container_name: mysql
+        ports:
+            - '3306:3306'
+        environment:
+            MYSQL_ROOT_PASSWORD: 'root'
+        volumes:
+            - database_data:/var/lib/mysql
+        restart: unless-stopped
+
+    forumify:
+        build: ./forumify
+        container_name: forumify
+        ports:
+            - '8000:80'
+        environment:
+            - APP_SECRET=<replace me>
+            - DATABASE_URL=mysql://forumify:<replace me>@mysql:3306/forumify?serverVersion=8.1.0
+            - MAILER_DSN=sendmail://default
+        volumes:
+            - forumify_storage:/usr/src/app/public/storage
+        restart: unless-stopped
+
+volumes:
+    database_data:
+    forumify_storage:
+```
+
+Before launching this, we need to configure 3 environment variables as these are different for every install, these are found in `services.forumify.environment` in the file above:
+
+- `APP_SECRET`: KtL67cxHYFZjbdE5Yd5y6b9dpwjBjxzU
+  - Set this value to a randomly generated string. From the Symfony documentation: “This is a string that should be unique to your application and it's commonly used to add more entropy to security related operations. Its value should be a series of characters, numbers and symbols chosen randomly and the recommended length is around 32 characters.”
+- `DATABASE_URL`: mysql://**USER**:**PASSWORD**@**HOST**:**PORT**/**DATABASE**?serverVersion=**VERSION**
+  - Change the highlighted sections according to your configuration.
+- `MAILER_DSN`: sendmail://default
+  - This is the way your platform will send emails. See [Symfony Mailer](https://symfony.com/doc/current/mailer.html#using-built-in-transports).
+
+Now we can launch forumify.
+
+```
+$ docker compose up -d
+ ✔ Container forumify             Started
+ ✔ Container mysql                Running
+```
+
+It will take a little while for the platform to launch for the first time. You can inspect its progress by checking the logs:
+
+```
+$ docker logs -f forumify
+
+...
+[OK] Cache for the "prod" environment (debug=false) was successfully warmed.
+CRIT Server 'unix_http_server' running without any HTTP authentication checking
+```
+
+Once you see those 2 lines at the end of the output, the platform has successfully launched.
+
+Now we can use the platform install command to set up some initial values and create an admin user:
+
+```
+$ docker exec -u nginx -it forumify ash -c "/usr/src/app/bin/console forumify:install"
+
+...
+[OK] forumify configured successfully!
+```
+
+To verify that forumify is running, we can use `docker ps` to see that forumify is running on port 8000 (`0.0.0.0:8000->80/tcp`). You can use `curl` or `wget` on your server to see that it is indeed running:
+
+```
+$ curl http://localhost:8000
+
+<!DOCTYPE html>
+<html lang="en">
+...
+```
+
+## Exposing forumify to the outside
+
+To expose forumify, we will be using another docker image. So let’s add it to our services in `docker-compose.yml`:
+
+```
+  proxy-manager:
+    container_name: proxy-manager
+    image: 'jc21/nginx-proxy-manager:latest'
+    ports:
+      - '80:80'
+      - '443:443'
+      - '81:81'
+    volumes:
+      - ./proxy-manager/data:/data
+      - ./proxy-manager/letsencrypt:/etc/letsencrypt
+    restart: unless-stopped
+```
+
+This [nginx-proxy-manager](https://nginxproxymanager.com/) is a nice graphical user interface to set up nginx proxies. This proxy will catch all communication coming in from port 80 and port 443, and route it to the correct docker container, in our case, the forumify container. It will also allow us to easily set up an SSL certificate for HTTPS network traffic using Let’s Encrypt.
+
+Let’s bring up the new container for proxy-manager
+
+```
+$ docker compose up -d
+ ✔ Container proxy-manager        Started
+ ✔ Container forumify             Running
+ ✔ Container mysql                Running
+```
+
+<Alert severity="info">
+    Port **80**, **81** and **443** need to be open to TCP traffic. At this point you must have a domain and it must be linked with an A record in your DNS zone to your host’s public IP address. If you do not have a domain yet, you can not continue with this documentation but you can modify your docker-compose to run forumify on port 80, or open port 8000 and use the IP address directly.
+</Alert>
+
+Now open up a browser window and navigate to `http://example.org:81`, this should bring up a login screen for proxy-manager. The default credentials are:
+
+```
+email: admin@example.com
+password: changeme
+```
+
+![Proxy Manager Login Screen](/guides/getting-started/npm-login.png)
+
+First you will be prompted to change the example email and password. Do so.
+
+Next, go to the “hosts” tab, select “Proxy Hosts” and click “Add Proxy Host”.
+
+In the details tab, fill in your domain names that should link to forumify, set the scheme to HTTP, forward hostname should be the name of your forumify docker container, in this case “forumify”. And forward port should be set to 80.
+
+![Proxy Manager Proxy Details](/guides/getting-started/npm-details.png)
+
+Then navigate to the SSL tab, for the SSL certificate select “Request a new SSL Certificate”, ensure the email is correct, and agree to the let’s encrypt ToS.
+
+![Proxy Manager Proxy SSL](/guides/getting-started/npm-ssl.png)
+
+Finally, press “Save”.
+
+If everything went well, you should now see a record in your Proxy Hosts with the correct domain, a Let’s Encrypt certificate, public access and status “Online”.
+
+When you now go to your domain using HTTPS (`https://example.org`), you should see forumify’s welcome page.
+
+Congratulations! You now have a forumify instance running in production mode on your server.
