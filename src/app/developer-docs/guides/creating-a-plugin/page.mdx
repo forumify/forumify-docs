@@ -1,0 +1,64 @@
+import Alert from '@/components/Alert';
+import Link from 'next/link';
+
+🚧🚧🚧 This guide is a work in progress!! 🚧🚧🚧
+
+# Creating A Plugin
+
+Plugins are re-usable packages that add functionality to a forumify instance. A plugin should be installable on any forumify instance.
+If you'd prefer to create specific functionality only for your forumify instance, you should work in your instance's `src/` folder instead.
+
+## Setup
+
+<Alert severity="info">
+    It is recommended to create a local sandbox forumify environment where you can activate your in-dev plugins without causing any issues.
+    See the <Link href="/developer-docs/guides/customization/introduction">Customization Introduction Guide</Link> to learn about running a local forumify instance.
+</Alert>
+
+forumify plugins are almost identical to Symfony bundles but with some configuration taken care of in an abstraction layer. Let's start by creating an empty directory to work in.
+
+```
+$ mkdir todo-plugin; cd todo-plugin
+```
+
+Then we'll initialize composer.
+
+```
+$ composer init
+
+This command will guide you through creating your composer.json config.
+
+Package name (<vendor>/<name>) [xxx/xxx]: acme/forumify-todo-plugin
+Description []: Simple TODO example
+Author [n to skip]: n
+Minimum Stability []:
+Package Type (e.g. library, project, metapackage, composer-plugin) []: forumify-plugin
+License []: OSL-3.0
+
+Define your dependencies.
+
+Would you like to define your dependencies (require) interactively [yes]? n
+Would you like to define your dev dependencies (require-dev) interactively [yes]? n
+Add PSR-4 autoload mapping? Maps namespace "Acme\ForumifyTodoPlugin" to the entered relative path. [src/, n to skip]:
+
+
+{
+    "name": "acme/forumify-todo-plugin",
+    "description": "Simple TODO example",
+    "type": "forumify-plugin",
+    "license": "OSL-3.0",
+    "autoload": {
+        "psr-4": {
+            "Acme\\ForumifyTodoPlugin\\": "src/"
+        }
+    },
+    "require": {}
+}
+
+Do you confirm generation [yes]? yes
+Generating autoload files
+Generated autoload files
+PSR-4 autoloading configured. Use "namespace Acme\ForumifyTodoPlugin;" in src/
+Include the Composer autoloader with: require 'vendor/autoload.php';
+```
+

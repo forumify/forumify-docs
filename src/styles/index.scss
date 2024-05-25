@@ -1,11 +1,12 @@
 @import 'framework';
 
 main {
-  width: 100%;
+  width: calc(100% - 280px);
 }
 
 .main-navigation {
   min-width: 280px;
+  max-width: 280px;
 
   ul {
     margin-left: var(--spacing-2);

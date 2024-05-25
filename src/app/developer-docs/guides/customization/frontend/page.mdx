@@ -1,0 +1,382 @@
+# Frontend
+
+Up until now we've been helped by forumify's abstractions to do most of the heavy lifting.
+For the frontend, we'll need to be a little more creative to create a nice looking page for our todos.
+
+Let's head back to the start. For our frontend we'll also need a controller and some routing.
+
+## Routing/Controller
+
+Just like with the admin controller, we're going to put everything that belongs solely on the frontend in a separate directory.
+Let's start by creating the directory `src/Frontend/Controller`.
+
+Now we can modify our `routes.yaml` to register and assign a prefix to all the controllers in our application.
+
+`config/routes.yaml`
+```yaml
+# ...
+
+app_frontend:
+    resource: ../src/Frontend/Controller
+    type: attribute
+    name_prefix: app_
+```
+
+Now all the routes declared by controllers in `src/Frontend/Controller` will get the `app_` prefix, but no path prefix.
+Remember from the admin guide, we used the `admin/` path prefix for security reason. On the frontend, we're on our own for security.
+
+This time we'll be extending Symfony's `AbstractController`, and we'll use PHP's magic `__invoke()` function for our controller action.
+
+`src/Frontend/Controller/TodoController.php`
+```php
+<?php
+
+namespace App\Frontend\Controller;
+
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+
+class TodoController extends AbstractController
+{
+    public function __invoke()
+    {
+    }
+}
+```
+
+Now we'll assign it a route, and we'll just have it return a simple message:
+
+`src/Frontend/Controller/TodoController.php`
+```php
+class TodoController extends AbstractController
+{
+    #[Route('todos', 'todos')]
+    public function __invoke(): Response
+    {
+        return new Response('hello from frontend!');
+    }
+}
+```
+
+Once that's set up, if we navigate to `/todos`, you should simply see a very unappealing "hello from frontend!" message.
+
+## Templates
+
+Let's bring in some templating so we can have the forumify layout applied to our controller.
+
+We'll create a template in `templates/frontend` that extends the base forumify template and shows our message.
+It's a good practice to nest your templates, so it's easy to refactor them later on.
+
+`templates/frontend/todos/todos.html.twig`
+```twig
+{% extends '@Forumify/frontend/base.html.twig' %}
+{% block title_page %}Todos{% endblock %}
+{% block body %}
+    <h1>Todos</h1>
+    <p>Hello from frontend!</p>
+{% endblock %}
+```
+
+And we also need to change our controller to render this template instead of our silly response.
+
+`src/Frontend/Controller/TodoController.php`
+```php
+class TodoController extends AbstractController
+{
+    #[Route('todos', 'todos')]
+    public function __invoke(): Response
+    {
+        return $this->render('frontend/todos/todos.html.twig');
+    }
+}
+```
+
+This doesn't really do much though. It's just a static page. We need to bring in our categories so we can display them.
+For that we'll be using the `TodoCategoryRepository`, and we'll use the tabs component to show a tab for every category.
+
+Let's start by feeding our template all of our categories.
+
+`src/Frontend/Controller/TodoController.php`
+```php
+class TodoController extends AbstractController
+{
+    public function __construct(private readonly TodoCategoryRepository $todoCategoryRepository)
+    {
+    }
+
+    #[Route('todos', 'todos')]
+    public function __invoke(): Response
+    {
+        return $this->render('frontend/todos/todos.html.twig', [
+            'categories' => $this->todoCategoryRepository->findAll(),
+        ]);
+    }
+}
+````
+
+Now all the categories are available in a `categories` Twig variable, so we can iterate over them and display a tab for each category.
+
+`templates/frontend/todos/todos.html.twig`
+```twig
+{% extends '@Forumify/frontend/base.html.twig' %}
+{% block title_page %}Todos{% endblock %}
+{% block body %}
+    <h1>Todos</h1>
+    {% embed '@Forumify/components/tabs.html.twig' %}
+        {% block tabs %}
+            {% for category in categories %}
+                <button
+                    class="btn-link"
+                    type="button"
+                    data-tab-id="category-{{ category.id }}"
+                >
+                    {{ category.title }}
+                </button>
+            {% endfor %}
+        {% endblock %}
+        {% block tabpanels %}
+            {% for category in categories %}
+                <div id="category-{{ category.id }}">
+                    <h2>{{ category.title }}</h2>
+                </div>
+            {% endfor %}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+```
+
+As you can see, now all categories have their own tab. And switching between the tabs just displays the title of the category.
+For the todos, let's use a LiveComponent, so we can create and check off todos using AJAX.
+
+## TodoList LiveComponent
+
+LiveComponent allows us to make interactive user experiences without having to write a single line of JavaScript.
+This is extremely powerful. Having to re-render the entire page just for small changes causes a lot of overhead.
+Instead, with LiveComponents we can only re-render a small portion of the page,
+which results in better performance and a smoother experience for the user.
+
+Always consider using LiveComponents when you're dealing with small components that do not affect a large state of the application.
+Some examples where LiveComponents are used in forumify: tables, lists, messenger, notifications, etc...
+
+Let's create a new class in `src/Frontend/Component` named `TodoList` and apply the `AsLiveComponent` attribute.
+
+`src/Frontend/Component/TodoList.php`
+```php
+<?php
+
+namespace App\Frontend\Component;
+
+use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
+use Symfony\UX\LiveComponent\DefaultActionTrait;
+
+#[AsLiveComponent('App\TodoList', 'frontend/todos/todo_list.html.twig')]
+class TodoList
+{
+    use DefaultActionTrait;
+}
+```
+
+Remember to always prefix your LiveComponents, and we specified a template here but it doesn't exist yet.
+Additionally you can see we use the `DefaultActionTrait` trait. This is just a helper from Symfony if your component doesn't have a default action.
+
+Let's create that template too:
+
+`templates/frontend/todos/todo_list.html.twig`
+```twig
+<div {{ attributes }}>
+    <div data-loading>
+        {% include '@Forumify/components/loader.html.twig' %}
+    </div>
+    <div data-loading="hide>
+        <p>Nobody here but us chickens!</p>
+    </div>
+</div>
+```
+
+We bootstrapped it with a couple of things. `{{ attributes }}` on the first element is required by LiveComponent.
+This is where it will mount a Stimulus JavaScript controller that allows us to do all of this without writing any ourselves.
+Additionally, we also added a div with `data-loading`. This is what will be shown if our component is waiting on the server to process our AJAX requests.
+
+The rest will go in the `data-loading="hide"` div, as this content should be hidden when a request is already pending.
+
+Now let's insert our component in `todos.html.twig`.
+
+`templates/frontend/todos/todos.html.twig`
+```twig
+{% block tabpanels %}
+    {% for category in categories %}
+        <div id="category-{{ category.id }}">
+            <h2>{{ category.title }}</h2>
+            {{ component('App\\TodoList') }}
+        </div>
+    {% endfor %}
+{% endblock %}
+```
+
+When we refresh the page, we should see the message "Nobody here but us chickens!"
+
+Let's pass in the category from our main template, into our LiveComponent. To do this, we need to add a `LiveProp` on our component, and pass it
+as an argument from our template.
+
+`src/Frontend/Components/TodoList.php`
+```php
+#[AsLiveComponent('App\TodoList', 'frontend/todos/todo_list.html.twig')]
+class TodoList
+{
+    use DefaultActionTrait;
+
+    #[LiveProp]
+    public TodoCategory $category;
+}
+```
+
+`templates/frontend/todos/todo.html.twig`
+```twig
+{{ component('App\\TodoList', { category: category }) }}
+```
+
+And let's display all the todos in our component.
+
+`templates/frontend/todos/todo_list.html.twig`
+```twig
+<div data-loading="hide">
+    <ul>
+        {% for todo in category.todos %}
+            <li>{{ todo.description }}</li>
+        {% else %}
+            <li>Nothing to do!</li>
+        {% endfor %}
+    </ul>
+</div>
+```
+
+Let's also add an input to submit a new todo.
+
+`templates/frontend/todos/todo_list.html.twig`
+```twig
+<ul>
+    {% for todo in category.todos %}
+        <li>{{ todo.description }}</li>
+    {% else %}
+        <li>Nothing to do!</li>
+    {% endfor %}
+    <li class="mt-6 flex items-end">
+        <div>
+            <label for="new-todo-description">New Todo</label>
+            <input id="new-todo-description" type="text" data-model="norender|newTodoDescription">
+        </div>
+        <button
+            class="btn-primary btn-icon"
+            data-action="live#action"
+            data-live-action-param="saveNewTodo"
+        >
+            <i class="ph ph-plus"></i>
+        </button>
+    </li>
+</ul>
+```
+
+Okay, a lot to unpack here. We added a list item with an input and a button.
+
+The input has an attribute `data-model` that links this input with a field in our LiveComponent. We'll look at that in a second.
+In addition to this linkage, we also add the `norender` function. This prevents the component from sending data to the server
+every time the input changes, and instead sends the changed field along with the next action that happens.
+
+Then the button has a `data-action` attribute with a special value, `live#action`, this means on the default action for buttons,
+which is click, it will call a live action in the component. Which action? Well that's defined in the `data-live-action-param`.
+In this case, when the button is clicked, execute the live action with name `saveNewTodo`.
+
+Now let's look at what we have to do in the component to make all of this work:
+
+`src/Frontend/Component/TodoList.php`
+```php
+class TodoList
+{
+    // ...
+
+    #[LiveProp(writable: true)]
+    public string $newTodoDescription = '';
+
+    public function __construct(private readonly TodoRepository $todoRepository)
+    {
+    }
+
+    #[LiveAction]
+    public function saveNewTodo(): void
+    {
+        if (empty($this->newTodoDescription)) {
+            return;
+        }
+
+        $todo = new Todo();
+        $todo->setCategory($this->category);
+        $todo->setDescription($this->newTodoDescription);
+        $this->todoRepository->save($todo);
+
+        $this->newTodoDescription = '';
+    }
+}
+```
+
+Okay, so that's not too bad. First we add another `LiveProp`, but this time we make it write-able. This is the property that our input is linked to.
+We inject our `TodoRepository` in the constructor because we're going to be saving some Todos.
+
+Then we define that `LiveAction`, which is just a PHP function with the `LiveAction` attribute. Nothing fancy here.
+When the button is clicked, we check if we've received a new description, and if we did, we'll create a new todo, save it and clear the input's value.
+
+Let's try it out. Try creating some new todos. And you'll see that you can now create todos.
+The loader pops up briefly, and the todo list is updated without re-rendering the entire page.
+
+And all of this without a single line of JavaScript. Neat right?
+
+Alright, let's finish this component off with a button in front of each todo, and when it's clicked, we remove the todo.
+
+`templates/frontend/todos/todo_list.html.twig`
+```twig
+{% for todo in category.todos %}
+    <li>
+        <button
+            class="btn-link btn-small btn-icon"
+            data-action="live#action"
+            data-live-action-param="completeTodo"
+            data-live-todo-id-param="{{ todo.id }}"
+        >
+            <i class="ph ph-check"></i>
+        </button>
+        {{ todo.description }}
+    </li>
+{% else %}
+    <li>Nothing to do!</li>
+{% endfor %}
+```
+
+Once again, we add a button with the `data-action` argument set to `live#action`, we defined the action in `data-live-action-param`,
+and in this case, we also supply the id of the todo we want to complete in `data-live-todo-id-param`.
+
+Let's add this action to our component.
+
+`src/Frontend/Components/TodoList.php`
+```php
+class TodoList {
+    // ...
+
+    #[LiveAction]
+    public function completeTodo(#[LiveArg] int $todoId): void
+    {
+        $todo = $this->todoRepository->find($todoId);
+        if ($todo === null) {
+            return;
+        }
+
+        $this->todoRepository->remove($todo);
+    }
+}
+```
+
+First we fetch the todo using our repository, and if one was found, we delete it.
+
+## Conclusion
+
+And there you have it. We now have a functional todo app. We're going to round off this introduction to customizing the platform
+by adding some security elements to our categories and our frontend in general in the next and final guide.
+

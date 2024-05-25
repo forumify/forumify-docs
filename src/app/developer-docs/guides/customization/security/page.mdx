@@ -1,0 +1,283 @@
+import Alert from '@/components/Alert';
+
+# Security
+
+Security is always an important topic in any application. In this guide we'll look at protecting certain controllers
+and restricting individual entities using forumify's ACL (**A**ccess **C**ontrol **List**) system.
+
+We will only be adding security to the frontend. If you remember from a few guides back,
+everything in `/admin` is automatically protected and only accessible to users who have a role that is marked as administrator.
+
+## Controller Security
+
+First of all, it's important to understand the role system in forumify and how roles are used in Symfony.
+This topic is explained in further detail in the Security page, but we'll do a brief recap here.
+
+There are 3 special roles in forumify that can not be modified or deleted.
+- Super Admin: Users with this role have access to **EVERYTHING**, they can never be denied access,
+- User: This role is given to everyone who is logged in,
+- Guest: This role is given to everyone who is not logged in.
+
+You can add your own custom roles. All roles will be transformed to ROLE_SCREAMING_SNAKE_CASE and assigned to the user.
+
+So let's apply this logic to our templates and controllers.
+
+For example, let's say we only want users to be able to close and add todos, we'll wrap the close buttons and last list item in an `is_granted('ROLE_USER')` check.
+
+`templates/frontend/todos/todo_list.html.twig`
+```twig
+<ul>
+    {% for todo in category.todos %}
+        <li>
+            {% if is_granted('ROLE_USER') %}
+                <button
+                    class="btn-link btn-small btn-icon"
+                    data-action="live#action"
+                    data-live-action-param="completeTodo"
+                    data-live-todo-id-param="{{ todo.id }}"
+                >
+                    <i class="ph ph-check"></i>
+                </button>
+            {% endif %}
+            {{ todo.description }}
+        </li>
+    {% else %}
+        <li>Nothing to do!</li>
+    {% endfor %}
+    {% if is_granted('ROLE_USER') %}
+        <li class="mt-6 flex items-end">
+            <div>
+                <label for="new-todo-description">New Todo</label>
+                <input id="new-todo-description" type="text" data-model="norender|newTodoDescription">
+            </div>
+            <button
+                class="btn-primary btn-icon"
+                data-action="live#action"
+                data-live-action-param="saveNewTodo"
+            >
+                <i class="ph ph-plus"></i>
+            </button>
+        </li>
+    {% endif %}
+</ul>
+```
+
+Now this removes the buttons and inputs from the frontend when someone is visiting but not logged in, but it still leaves
+the LiveComponent vulnerable to someone who is savvy enough to execute the AJAX requests. So we'll use some `IsGranted` attributes on the live actions.
+
+`src/Frontend/Components/TodoList.php
+```php
+class TodoList
+{
+    // ...
+
+    #[IsGranted('ROLE_USER')]
+    #[LiveAction]
+    public function saveNewTodo(): void
+
+    // ...
+
+    #[IsGranted('ROLE_USER')]
+    #[LiveAction]
+    public function completeTodo(#[LiveArg] int $todoId): void
+}
+```
+
+And there we go, we've now secured our frontend and only logged-in users can complete and create todos.
+
+## AccessControlledEntity
+
+A more advanced method of controlling who can access certain entities is using forumify's ACL system.
+
+Let's apply access control to our `TodoCategory` so admins can configure which roles can complete todos, and which roles can create todos.
+To do this, we need to modify our entity to implement the `AccessControlledEntity` interface.
+
+`src/Entity/TodoCategory.php`
+```php
+class TodoCategory implements AccessControlledEntity
+{
+    // ...
+
+    public function getACLPermissions(): array
+    {
+        return ['view', 'complete', 'create'];
+    }
+
+    public function getACLParameters(): ACLParameters
+    {
+        return new ACLParameters(
+            self::class,
+            $this->getId(),
+            'app_admin_todo_category_list'
+        );
+    }
+}
+```
+
+This interface requires 2 functions;
+1. `getACLPermissions()`: specifies which permissions exist on the entity
+2. `getACLParameters()`: used to check access on the frontend, and generate the ACL page in the admin
+
+Now we'll modify our table component to include an action to configure which role has access to which permissions.
+
+`src/Admin/Component/TodoCategoryTable.php`
+```php
+class TodoCategoryTable extends AbstractDoctrineTable
+{
+    // ...
+
+    private function renderActionColumn(int $id, TodoCategory $category): string
+    {
+        $aclUrl = $this->urlGenerator->generate('forumify_admin_acl', (array)$category->getACLParameters());
+        $editUrl = $this->urlGenerator->generate('app_admin_todo_category_edit', ['identifier' => $id]);
+        $deleteUrl = $this->urlGenerator->generate('app_admin_todo_category_delete', ['identifier' => $id]);
+
+        return "
+            <a class='btn-link btn-icon btn-small' href='$aclUrl'><i class='ph ph-lock'></i></a>
+            <a class='btn-link btn-icon btn-small' href='$editUrl'><i class='ph ph-pencil-simple-line'></i></a>
+            <a class='btn-link btn-icon btn-small' href='$deleteUrl'><i class='ph ph-x'></i></a>
+        ";
+    }
+}
+```
+
+When you go to the categories table in the admin, you can press the lock and assign permissions to roles.
+
+<Alert severity="info">
+    Remember that all logged in users have the User role. So just enabling a permission for User will also enable it for all other roles (except for Guest).
+</Alert>
+
+So we can configure *individual* permissions on *individual* entities. But this doesn't actually do anything yet. For that we'll need to modify our frontend again.
+
+First off, we'll filter out the categories that shouldn't be visible to the user in our frontend todo controller.
+
+`templates/frontend/todos/todos.html.twig`
+```twig
+{% block body %}
+    <h1>Todos</h1>
+    {% set visibleCategories = categories|filter(category => can('view', category)) %}
+    {% embed '@Forumify/components/tabs.html.twig' %}
+        {% block tabs %}
+            {% for category in visibleCategories %}
+                <button
+                    class="btn-link"
+                    type="button"
+                    data-tab-id="category-{{ category.id }}"
+                >
+                    {{ category.title }}
+                </button>
+            {% endfor %}
+        {% endblock %}
+        {% block tabpanels %}
+            {% for category in visibleCategories %}
+                <div id="category-{{ category.id }}">
+                    <h2>{{ category.title }}</h2>
+                    {{ component('App\\TodoList', { category: category }) }}
+                </div>
+            {% endfor %}
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+```
+
+We use the `can()` twig function added by forumify to filter all the categories and only keep the ones that are accessible to the user.
+Then we iterate over these `visibleCategories` instead of all categories.
+
+Next up our TodoList component, we'll start with the template since it's easiest. We'll replace the 2 `is_granted` checks from before with `can` checks.
+
+`templates/frontend/todos/todo_list.html.twig`
+```twig
+<div data-loading="hide">
+    {% set canCompleteTodos = can('complete', category) %}
+    <ul>
+        {% for todo in category.todos %}
+            <li>
+                {% if canCompleteTodos %}
+                    {# ... #}
+                {% endif %}
+                {{ todo.description }}
+            </li>
+        {% else %}
+            <li>Nothing to do!</li>
+        {% endfor %}
+        {% if can('create', category) %}
+            <li class="mt-6 flex items-end">
+                {# ... #}
+            </li>
+        {% endif %}
+    </ul>
+</div>
+```
+
+<Alert severity="warning">
+    Each `can` check needs to check the database to see if the action is allowed. So we extract `canCompleteTodos` here so we don't
+    hit the database for every todo in the category, but only once outside of the for-loop.
+</Alert>
+
+And once again, this protects us from users who aren't tech-savvy, but those who know how to perform an AJAX request can still hit
+our LiveComponent directly. So we need to apply the same security there too.
+
+There are multiple ways to check security in Symfony services, controllers, components,... For this guide we'll use a method that
+works both in Controllers and LiveComponents.
+
+First, we're going to use a little trick. We're going to make our LiveComponent extend `AbstractController`.
+This is possible in LiveComponents, because they are actually just controllers. Don't try this for other services though.
+
+Now the `denyAccessUnlessGranted()` from `AbstractController` becomes available in our LiveComponent, and we can use it on our actions to check security before
+doing anything else.
+
+We'll remove our previously defined `#[IsGranted('ROLE_USER')]` checks and use `denyAccessUnlessGranted()` instead.
+
+`src/Frontend/Component/TodoList.php`
+```php
+class TodoList extends AbstractController
+{
+    #[LiveAction]
+    public function saveNewTodo(): void
+    {
+        $this->denyAccessUnlessGranted(VoterAttribute::ACL->value, [
+            'permission' => 'create',
+            'entity' => $this->category,
+        ]);
+
+        if (empty($this->newTodoDescription)) {
+            return;
+        }
+
+        $todo = new Todo();
+        $todo->setCategory($this->category);
+        $todo->setDescription($this->newTodoDescription);
+        $this->todoRepository->save($todo);
+
+        $this->newTodoDescription = '';
+    }
+
+    #[LiveAction]
+    public function completeTodo(#[LiveArg] int $todoId): void
+    {
+        $this->denyAccessUnlessGranted(VoterAttribute::ACL->value, [
+            'permission' => 'complete',
+            'entity' => $this->category,
+        ]);
+
+        $todo = $this->todoRepository->find($todoId);
+        if ($todo === null) {
+            return;
+        }
+
+        $this->todoRepository->remove($todo);
+    }
+}
+```
+
+And voila. We don't need to do anything else. The `denyAccessUnlessGranted` will throw an exception, which will then be handled by the framework
+to return a forbidden HTTP status.
+
+<Alert severity="info">
+    To check security in non-controllers, you need to inject `Security`, and then use `$security->isGranted(...)` with the same parameters as above.
+    This will return a boolean which you can then use to throw an `AccessDeniedException`, or do whatever you have to do if the user doesn't have access.
+</Alert>
+
+## Conclusion
+
+That's it. You should now be familiar with the most common concepts used in forumify.

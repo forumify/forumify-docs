@@ -1,14 +1,21 @@
 import Alert from '@/components/Alert';
 
-# Getting Started
+# Self Hosting
 
 <Alert severity="warning">
     This guide is meant to get you started with self-hosting a forumify instance. While you are in the right place if you already have server infrastructure, if you are not familiar with hosting websites, we recommend taking a look at our hosted options instead.
 </Alert>
 
+
 ## Preparing your server
 
 To run forumify, you will need a server that supports SSH or any method to access the command line interface. We will be using ubuntu server as an example but you can pick your own flavor. These instructions should also work on Windows.
+
+<Alert severity="info">
+    This guide will focus on running forumify using docker. If you'd rather not use docker, there is nothing preventing you from running it on a typical LAMP/WAMP stack.
+    All you need is a webserver (apache/nginx/..), a PHP runtime and a MySQL database.
+    If you also want to build your dependencies locally, you will need composer and nodejs.
+</Alert>
 
 The primary supported method for running forumify is by using [docker](https://www.docker.com/).
 
@@ -95,14 +102,14 @@ $ docker compose up -d
 
 If everything went well, you now have a MySQL server running on your system. Now let’s create the database and the user that forumify will be using. The easiest way to do so is to connect to your MySQL server using a GUI client, such as DBeaver, Navicat,… but for the sake of staying as generic as possible, we will be using the `mysql` client command that is available on most linux distros. If it’s not installed yet, please install it and connect to your server:
 
-<Alert severity="info">
-    If you want to use a GUI client from your computer to connect to your server, you should connect through an SSH tunnel to your sever, most clients will have this option, and then connect to localhost:3306.
-</Alert>
-
 ```
 $ mysql -uroot -proot -h127.0.0.1
 mysql>
 ```
+
+<Alert severity="info">
+    If you want to use a GUI client from your computer to connect to your server, you should connect through an SSH tunnel to your sever, most clients will have this option, and then connect to localhost:3306.
+</Alert>
 
 Let’s create the database named `forumify`, and a user named `forumify` that can access it, take note of the user’s password because you will need it soon.
 

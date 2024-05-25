@@ -1,0 +1,392 @@
+import Alert from '../../../../../components/Alert';
+
+# Admin CRUD
+
+In the previous guide we created 2 entities. `Todo` and `TodoCategory`.
+To keep this guide brief, we'll only add `TodoCategory` to the admin.
+
+The admin in forumify is highly customizable and comes with several abstractions that make CRUD controllers trivial.
+
+It's a good idea to separate forumify admin logic from the frontend logic. So let's start by creating a new directory in `src`, named `Admin`.
+
+In there, let's create another directory, `Controller`. This is where we'll store all of our controllers specific to the forumify admin panel.
+
+## Routing
+
+Controllers in Symfony are just a function. Almost anything can be a Symfony controller.
+But controllers need to have a route attached to them for them to be discoverable from the browser.
+Routes can be defined on several different levels.
+- In `config/routes.yaml`,
+- As a `Route` attribute on a class,
+- As a `Route` attribute on a function within a class.
+
+We recommend using `config/routes.yaml` to specify a global name and url prefix for all of your routes,
+and then using class or function attributes for more details.
+For the admin, we'll start by specifying that all controllers in `src/Admin/Controller` are going to get the name prefix `app_admin_`,
+and the url prefix `/admin`.
+
+<Alert severity="info">
+    Security is automatically applied to all routes who's URL matches `^/admin`, so by default, your admin controllers will be protected as long as they start
+    with `/admin`.
+</Alert>
+
+Open up the `config/routes.yaml` file and **replace** its contents with this:
+```yaml
+app_admin:
+    resource: ../src/Admin/Controller
+    type: attribute
+    name_prefix: app_admin_
+    prefix: admin/
+```
+
+You can now delete the `src/Controller` directory as we do not recommend using it in a forumify application, and instead separating the logic into `Admin` and `Frontend`.
+
+- [Learn more about Symfony Routing](https://symfony.com/doc/current/routing.html)
+
+## Controllers
+
+Inside the newly created `src/Admin/Controller`, we will add our controller class `TodoCategoryController`.
+
+`src/Admin/Controller/TodoCategoryController.php`
+```php
+<?php
+
+namespace App\Admin\Controller;
+
+class TodoCategoryController
+{
+}
+```
+
+To speed up development, forumify provides an abstraction for admin CRUD controllers,
+so let's use it by extending `AbstractCrudController` and adding the required methods.
+
+`src/Admin/Controller/TodoCategoryController.php`
+```php
+<?php
+
+namespace App\Admin\Controller;
+
+use App\Entity\TodoCategory;
+use Forumify\Admin\Crud\AbstractCrudController;
+use Symfony\Component\Form\FormInterface;
+
+class TodoCategoryController extends AbstractCrudController
+{
+    protected function getEntityClass(): string
+    {
+        return TodoCategory::class;
+    }
+
+    protected function getTableName(): string
+    {
+    }
+
+    protected function getForm(): FormInterface
+    {
+    }
+}
+```
+
+We'll worry about the `getTableName()` and `getForm()` methods later.
+
+And finally, like we discussed previously in the routing section, we have to give this controller a route attribute.
+
+`src/Admin/Controller/TodoCategoryController.php`
+```php
+<?php
+
+#[Route('todo-category', 'todo_category')]
+class TodoCategoryController extends AbstractCrudController
+```
+
+<Alert severity="info">
+    To stay consistent with Symfony, the forumify platform and plugin recommendations, we recommend using kebab-case for route paths
+    and snake_case for route names.
+</Alert>
+
+Now that our controllers are defined, we can debug the router to see if Symfony sees our new controllers.
+
+```
+$ symfony console debug:router --show-controllers
+...
+  app_admin_todo_category_list             ANY      ANY      ANY    /admin/todo-category                            App\Admin\Controller\TodoCategoryController::list()
+  app_admin_todo_category_create           ANY      ANY      ANY    /admin/todo-category/create                     App\Admin\Controller\TodoCategoryController::create()
+  app_admin_todo_category_edit             ANY      ANY      ANY    /admin/todo-category/{identifier}/edit          App\Admin\Controller\TodoCategoryController::edit()
+  app_admin_todo_category_delete           ANY      ANY      ANY    /admin/todo-category/{identifier}/delete        App\Admin\Controller\TodoCategoryController::delete()
+...
+```
+
+Woah! As you can see, it automatically detects 4 routes for this controller. These routes are automatically added by the `AbstractCrudController`.
+It adds a table list route, create and edit form routes, and a delete route.
+
+- [Learn more about Symfony Controllers](https://symfony.com/doc/current/controller.html)
+
+## MenuBuilder
+
+If we go to the admin panel of our app, there is currently no way to go to our new controllers using the menu.
+So let's change that by creating an admin menu builder for our todos.
+
+Create a new directory in `src/Admin` named `MenuBuilder`. And create the class `TodoMenuBuilder` that implements the `AdminMenuBuilderInterface`.
+
+`src/Admin/MenuBuilder/TodoMenuBuilder.php`
+```php
+<?php
+
+namespace App\Admin\MenuBuilder;
+
+use Forumify\Admin\MenuBuilder\AdminMenuBuilderInterface;
+use Forumify\Core\MenuBuilder\Menu;
+
+class TodoMenuBuilder implements AdminMenuBuilderInterface
+{
+    public function build(Menu $menu): void
+    {
+    }
+}
+```
+
+You can either use 1 large menu builder for your entire application, or using separate menu builders per "feature".
+We recommend the latter to increase maintainability.
+
+Let's add in our Todo menu. For that we will inject the `UrlGeneratorInterface` from Symfony, create a menu, and attach our list controller as a menu item.
+
+Our finalized menu builder should look like this:
+
+`src/Admin/MenuBuilder/php`
+```php
+<?php
+
+namespace App\Admin\MenuBuilder;
+
+use Forumify\Admin\MenuBuilder\AdminMenuBuilderInterface;
+use Forumify\Core\MenuBuilder\Menu;
+use Forumify\Core\MenuBuilder\MenuItem;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+
+class TodoMenuBuilder implements AdminMenuBuilderInterface
+{
+    public function __construct(private readonly UrlGeneratorInterface $urlGenerator)
+    {
+    }
+
+    public function build(Menu $menu): void
+    {
+        $todoMenu = new Menu('Todos', ['icon' => 'ph ph-check-square']);
+
+        $todoCategoryListLocation = $this->urlGenerator->generate('app_admin_todo_category_list');
+        $todoCategoryItem = new MenuItem('Todo Categories', $todoCategoryListLocation);
+        $todoMenu->addItem($todoCategoryItem);
+
+        $menu->addItem($todoMenu, 100);
+    }
+}
+```
+
+When you refresh your admin panel, you should see a new menu entry at the bottom for our todos.
+If you navigate to this new item, you are presented with an error. That's because we haven't completed those methods for our CRUD controller yet.
+We'll do that next.
+
+<Alert severity="info">
+    You can add the `icon` option to all menus and menu items. By default forumify comes with [Phosphor Icons](https://phosphoricons.com/) installed.
+</Alert>
+
+## Tables
+
+To be able to display a list for our todo categories, we must create a table so forumify knows what columns and actions to display on the list page.
+Tables are part of a larger group of classes we refer to as "components". Components are a mix of a PHP class, a Twig template and optionally even a controller.
+
+So let's create the directory `src/Admin/Component` in which we'll create our table class, `TodoCategoryTable` which will extend `AbstractTable`.
+
+`src/Admin/Component/TodoCategoryTable.php`
+```php
+<?php
+
+namespace App\Admin\Component;
+
+use App\Repository\TodoCategoryRepository;
+use Forumify\Core\Component\Table\AbstractDoctrineTable;
+
+class TodoCategoryTable extends AbstractDoctrineTable
+{
+    public function __construct(TodoCategoryRepository $repository)
+    {
+        parent::__construct($repository);
+    }
+
+    protected function buildTable(): void
+    {
+    }
+}
+```
+
+And, since this is a component, we must give it a name and link a template. For tables, forumify already has a template you can use.
+The name for our component can be any string, but we recommend to use a PHP namespace style approach. For plugins this is Vendor\Plugin\MyCoolComponent,
+but since we're in our main application, we'll use App\ instead of Vendor\Plugin\. This is to prevent collisions with the platform itself or other plugins.
+
+`src/Admin/Component/TodoCategoryTable.php`
+```php
+#[AsLiveComponent('App\TodoCategoryTable', '@Forumify/components/table/table.html.twig')]
+class TodoCategoryTable extends AbstractDoctrineTable
+```
+
+To link this table to our crud controller, we must return its name in the `getTableName()` function.
+
+`src/Admin/Controller/TodoCategoryController.php`
+```php
+class TodoCategoryController extends AbstractCrudController
+{
+    // ...
+
+    protected function getTableName(): string
+    {
+        return 'App\TodoCategoryTable';
+    }
+
+    // ...
+}
+````
+
+Now if we navigate back to the todo categories in the admin panel, we get an empty table. Nice! But we're not done yet.
+As you can see, the `AbstractDoctrineTable` requires us to implement a `buildTable` method. This is where we can add columns to our table.
+So let's add 3 columns. The title, the amount of todos, and an "action" column to edit/delete the entry.
+
+`src/Admin/Component/TodoCategoryTable.php`
+```php
+class TodoCategoryTable extends AbstractDoctrineTable
+{
+    public function __construct(
+        TodoCategoryRepository $repository,
+        private readonly UrlGeneratorInterface $urlGenerator,
+    ) {
+        parent::__construct($repository);
+    }
+
+    protected function buildTable(): void
+    {
+        $this
+            ->addColumn('title', [
+                'field' => 'title',
+            ])
+            ->addColumn('todos', [
+                'field' => 'todos',
+                'searchable' => false,
+                'sortable' => false,
+                'renderer' => fn (Collection $todos) => $todos->count(),
+            ])
+            ->addColumn('actions', [
+                'label' => '',
+                'field' => 'id',
+                'searchable' => false,
+                'sortable' => false,
+                'renderer' => $this->renderActionColumn(...),
+            ]);
+    }
+
+    private function renderActionColumn(int $id): string
+    {
+        $editUrl = $this->urlGenerator->generate('app_admin_todo_category_edit', ['identifier' => $id]);
+        $deleteUrl = $this->urlGenerator->generate('app_admin_todo_category_delete', ['identifier' => $id]);
+
+        return "
+            <a class='btn-link btn-icon btn-small' href='$editUrl'><i class='ph ph-pencil-simple-line'></i></a>
+            <a class='btn-link btn-icon btn-small' href='$deleteUrl'><i class='ph ph-x'></i></a>
+        ";
+    }
+}
+```
+
+Now, when you refresh the list page, you'll see the headings, but it's hard to see what's going on without any data.
+We cannot add any categories yet from the admin, but at this stage you could insert some test rows into your database manually, just so you can visualise the page.
+
+- [Learn more about LiveComponent](https://symfony.com/bundles/ux-live-component/current/index.html)
+
+## Forms
+
+Now we've checked off the R and D in CRUD, we can read and delete rows, but we cannot create or update yet.
+For that, we need to implement the last method in our CRUD controller, `getForm()`.
+
+There are 2 ways to provide a form, create it directly in the controller, or create a `FormType`. In this guide we'll be following best practices, so we'll show the latter.
+
+Inside of `src/Admin`, let's create a new directory `Form`. And in there, we'll create the class `TodoCategoryType`, which extends Symfony's `AbstractType`.
+
+`src/Admin/Form/TodoCategoryType.php`
+```php
+<?php
+
+namespace App\Admin\Form;
+
+use App\Entity\TodoCategory;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+
+class TodoCategoryType extends AbstractType
+{
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => TodoCategory::class,
+        ]);
+    }
+
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder->add('title', TextType::class);
+    }
+}
+```
+
+In `configureOptions()` we set the option `data_class` to our entity, and in `buildForm()` we'll add all the fields that are configurable by the admin.
+
+Now we can tell our crud controller to create a form using this type, and use it for the create and edit controllers.
+
+`src/Admin/Controller/TodoCategoryController.php`
+```php
+class TodoCategoryController extends AbstractCrudController
+{
+    // ...
+
+    protected function getForm(): FormInterface
+    {
+        return $this->createForm(TodoCategoryType::class);
+    }
+}
+```
+
+Adding the form covers the last pieces of our CRUD controller. We now have a list page, create, edit and delete all covered.
+But you should be able to tell that there's still one last missing piece of the puzzle.
+
+- [Learn more about Symfony Forms](https://symfony.com/doc/current/forms.html)
+
+## Translations
+
+There are 2 translations you have to add when using forumify's CRUD controller abstraction.
+
+- `admin.your_snake_case_entity.crud.single`
+- `admin.your_snake_case_entity.crud.plural`
+
+So let's add a translation file with these 2 keys.
+
+`translations/messages+intl-icu.en.yaml`
+```yaml
+admin:
+    todo_category:
+        crud:
+            single: 'todo category'
+            plural: 'todo categories'
+```
+
+In theory, you also need to provide translations for the fields in the form.
+You can install the [Symfony profiler](https://symfony.com/doc/current/profiler.html) to see any missing translations
+as well as any issues with your entities and profiler information.
+
+- [Learn more about Symfony Translations](https://symfony.com/doc/current/translation.html)
+
+## Conclusion
+
+We now have our todo and category entities as well as a way for the admins to manage categories.
+Next up we need to make a frontend controller to show these categories, and to allow users to add and check off todos.
+
+As an exercise, you could create an admin CRUD controller for the todos too.

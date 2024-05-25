@@ -28,8 +28,45 @@
         "children": [
           {
             "type": "route",
-            "path": "getting-started",
-            "label": "Getting Started"
+            "path": "self-hosting",
+            "label": "Self Hosting"
+          },
+          {
+            "type": "collection",
+            "path": "customization",
+            "label": "Customization",
+            "children": [
+              {
+                "type": "route",
+                "path": "introduction",
+                "label": "Introduction"
+              },
+              {
+                "type": "route",
+                "path": "entities",
+                "label": "Entities"
+              },
+              {
+                "type": "route",
+                "path": "admin-crud",
+                "label": "Admin CRUD"
+              },
+              {
+                "type": "route",
+                "path": "frontend",
+                "label": "Frontend"
+              },
+              {
+                "type": "route",
+                "path": "security",
+                "label": "Security"
+              }
+            ]
+          },
+          {
+            "type": "route",
+            "path": "creating-a-plugin",
+            "label": "Creating A Plugin"
           }
         ]
       }

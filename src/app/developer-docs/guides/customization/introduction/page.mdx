@@ -1,0 +1,146 @@
+import Alert from '../../../../../components/Alert';
+
+# Customizing forumify
+
+The forumify platform is built on the shoulders of the Symfony Framework. Anything you can do in Symfony is also possible in a forumify application.
+A conscious decision was made to not wrap Symfony in some "custom forumify sugar" and to allow developers to interact with the underlying framework as much
+as possible and only provide abstractions when these are useful and save considerable amounts of time. Anyone who has experience with Symfony will immediately feel at home.
+With that in mind, we highly recommend getting familiar with the [Symfony Framework](https://symfony.com/doc/current/index.html) while working in the forumify platform.
+
+This short guide is a tutorial-style introduction to customizing the forumify platform that covers most of the basic concepts.
+
+## Development Environment
+
+There are many different ways of hosting a development version of forumify. We recommend you install the following tools on your host OS:
+
+- [Docker (Desktop)](https://www.docker.com/products/docker-desktop/)
+
+While you could use the [forumify docker image](https://hub.docker.com/r/forumify/forumify) to develop, we recommend a local PHP environment:
+
+- [PHP](https://www.php.net/manual/en/install.php)
+    - Check which version is currently required by forumify [here](https://github.com/forumify/forumify-platform/blob/master/composer.json).
+    - You also need to install/enable the following extensions: pdo_mysql, intl, zip.
+- [Composer](https://getcomposer.org/download/)
+- [NodeJS](https://nodejs.org/en)
+- [Symfony CLI](https://symfony.com/download)
+
+## Development Project
+
+If you are using self-hosting, you can fork the forumify production template.
+You can commit and push all the files that are created to your own git repository. A standard .gitignore will ensure only required files are included.
+Then later, on your production server, you can clone/pull your repository instead of the production template.
+
+When using forumify cloud hosting, you will have to use sFTP to copy the files from the host to your local environment, make changes, and then upload them back onto the server.
+After uploading these files, you'll have to clear cache so your changes get picked up by forumify.
+
+### Installing Dependencies
+
+Before we can run anything, we need to install the project dependencies:
+```
+$ composer install
+$ npm install --force
+```
+
+This will also use the Symfony Flex composer plugin to set up your project with some basic files that are needed to run the platform.
+These files are unique to your project, and you should commit them to version control.
+
+### Docker Compose
+
+You need 2 services for development, a MySQL server and an email server. You can also add more services like PHPMyAdmin if required.
+
+Here's an example `docker-compose.yml` which you can place at your project's root directory.
+```
+services:
+    mysql:
+        image: mysql:latest
+        container_name: mysql
+        ports:
+            - '3306:3306'
+        environment:
+            MYSQL_ROOT_PASSWORD: 'root'
+        volumes:
+            - database_data:/var/lib/mysql
+        restart: unless-stopped
+
+    mailcatcher:
+        image: schickling/mailcatcher
+        container_name: mailcatcher
+        ports:
+            - '1025:1025'
+            - '1080:1080'
+        restart: unless-stopped
+
+volumes:
+    database_data:
+```
+
+<Alert severity="info">
+    Mailcatcher is a spoof email server. It accepts all smtp mail traffic on port 1025 and provides an email client on port 1080.
+    You can go to `localhost:1080` to see all emails sent by your development environment.
+</Alert>
+
+### Environment variables
+
+Inside your project, you will find a `.env` file with some preset environment variables. We'll want to override some for local development.
+
+Create a `.env.local` file and modify the values to match your setup. The example below should work with the docker-compose example from earlier when running on Docker Desktop.
+```
+APP_ENV=dev
+APP_DEBUG=1
+APP_SECRET=not-a-real-secret
+DATABASE_URL="mysql://root:root@host.docker.internal:3306/forumify?serverVersion=8.0.32&charset=utf8mb4"
+MAILER_DSN=smtp://host.docker.internal:1025
+```
+
+### Ready To Launch
+
+Once all of your dependencies are ready, you can start your webserver. If you're using Symfony CLI and docker-compose, it'd look somewhat like this:
+```
+$ docker compose up -d
+$ symfony server:start -d
+$ npm run watch
+```
+
+<Alert severity="info">
+    If you are using Symfony CLI as web server, it's recommended to install a CA certificate to enable HTTPS for your development environment.
+    See [this guide](https://symfony.com/doc/current/setup/symfony_server.html#enabling-tls) for more info.
+</Alert>
+
+When you launch for the first time, you will not have a database yet. You can run the install command to create the database and an initial admin user for you.
+```
+$ symfony console forumify:install
+```
+
+<Alert severity="info">
+    The `symfony` command will only work when you have Symfony CLI installed.
+    You can run console commands without Symfony CLI by using `php bin/console forumify:install` instead.
+</Alert>
+
+## Finished!
+
+If everything went well, you should now have a development instance of forumify running on `localhost:8000`.
+
+If you followed the recommendation to learn Symfony first, then this development setup for forumify should feel very familiar to you.
+This was done on purpose so anyone with experience in the Symfony framework can jump straight in.
+
+The next time you want to start your project, all you need to do is start docker (When using Docker Desktop your project should be visible in the GUI too),
+run your webserver, and start the webpack asset watcher.
+
+```
+$ docker compose up -d
+$ symfony server:start -d
+$ npm run watch
+```
+
+## What's next?
+
+In the following guides we will be creating a small TODO application inside forumify by using some of the platform's helpers to speed us up.
+Our goal will be to create categories of TODOs from the admin panel, and users can create and complete their todos from the frontend.
+This exercise should allow us to cover most of the techniques used in customizing the platform.
+
+This would be a good moment to review the [Symfony Best Practices](https://symfony.com/doc/current/best_practices.html) as it explains the directory structure and other recommendations we will be respecting.
+
+### Learn more
+- [Docker](https://docs.docker.com/guides/)
+- [Symfony](https://symfony.com/)
+- [Symfony Web Server](https://symfony.com/doc/current/setup/symfony_server.html)

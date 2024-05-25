@@ -1,0 +1,330 @@
+import Alert from '../../../../../components/Alert';
+
+# Entities
+
+Entities are objects whose data is stored in the database. forumify already comes with a plethora of entities, from users to forums, topics, messages, etc.
+Anything that needs to be stored in the database will need an entity class.
+
+forumify uses [Doctrine](https://symfony.com/doc/current/doctrine.html) as the abstraction layer between the application and the database.
+
+In our example project, Flex has generated a `src/Entity` directory for us. This is where we'll put all of our entity classes.
+
+<Alert severity="info">
+    It is possible to change the default doctrine entity directory, or have multiple directories if you want to split your code.
+    You can do so by modifying the `doctrine.orm.mappings` value in `config/packages/doctrine.yaml`.
+</Alert>
+
+## Todo Entities
+
+For our TODO app, we want to have todos, and we want the ability to only show some groups of todos to specific users.
+So for this we'll create 2 entities. `Todo` and `TodoCategory`.
+
+All entities must also have the doctrine `Entity` attribute.
+
+`src/Entity/Todo.php`
+```php
+<?php
+
+namespace App\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity]
+class Todo
+{
+
+}
+```
+
+This is where we can start using some of the forumify traits to help us create our entity faster.
+For this, we'll use 3 traits.
+- `IdentifiableEntityTrait`: Adds an auto-increment `id` field,
+- `BlameableEntityTrait`: Adds the `createdBy` and `updatedBy` fields that link the entity to a user,
+- `TimestampableEntityTrait`: Adds the `createdAt` and `updatedAt` fields, which are useful to track when the entity got created and last updated.
+
+`src/Entity/Todo.php`
+```php
+// ...
+use Forumify\Core\Entity\BlameableEntityTrait;
+use Forumify\Core\Entity\IdentifiableEntityTrait;
+use Forumify\Core\Entity\TimestampableEntityTrait;
+
+#[ORM\Entity]
+class Todo
+{
+    use IdentifiableEntityTrait;
+    use BlameableEntityTrait;
+    use TimestampableEntityTrait;
+}
+```
+
+To finish off our Todo entity, we'll add one last field. A description of what that needs to be done.
+We also need to add a getter and setter to get and update the field later.
+
+`src/Entity/Todo.php`
+```php
+// ...
+class Todo
+{
+    // ...
+    #[ORM\Column]
+    private string $description;
+
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): void
+    {
+        $this->description = $description;
+    }
+}
+```
+
+<Alert severity="info">
+    You can also use the [MakerBundle](https://symfony.com/bundles/SymfonyMakerBundle/current/index.html) to automatically generate entity classes.
+    We recommend getting used to doing it manually, as it's something that should become second nature and MakerBundle doesn't know about forumify's shortcuts.
+</Alert>
+
+Now let's create the `TodoCategory` entity. For this entity, we will only allow admins to create/modify them, so we're not going to include the `Blameable` or `Timestampable` traits.
+
+`src/Entity/TodoCategory.php`
+```php
+<?php
+
+namespace App\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Forumify\Core\Entity\IdentifiableEntityTrait;
+
+#[ORM\Entity]
+class TodoCategory
+{
+    use IdentifiableEntityTrait;
+
+    #[ORM\Column]
+    private string $title;
+
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): void
+    {
+        $this->title = $title;
+    }
+}
+```
+
+## Relationships
+
+You may have noticed that currently there's no link between a Todo and a TodoCategory. So let's create a relationship between the two so that each todo must belong to a category.
+
+In this case we will use a bidirectional many-to-one relationship from Todo to TodoCategory.
+- bidirectional: each side of the relationship contains a field to the other entity
+- many-to-one: Many Todos have exactly 1 TodoCategory, or the inverse, 1 TodoCategory has zero-or-more Todos.
+
+Many-to-one relationships should always define what we want to happen when the related entity gets removed.
+In our case, `TodoCategory` acts like a parent to the `Todo` and it doesn't make sense to have `Todo`s that aren't in any categories,
+so if the parent is removed, we want all the children to be removed too. This can be done using the `JoinColumn` annotation.
+
+`src/Entity/Todo.php`
+```php
+class Todo {
+    // the other private fields...
+
+    #[ORM\ManyToOne(targetEntity: TodoCategory::class, inversedBy: 'todos')]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
+    private TodoCategory $category;
+
+    // the existing getters/setters...
+
+    public function getCategory(): TodoCategory
+    {
+        return $this->category;
+    }
+
+    public function setCategory(TodoCategory $category): void
+    {
+        $this->category = $category;
+    }
+}
+```
+
+And now the inverse side, if `Todo` has a `ManyToOne` to the category, then the category will be a `OneToMany` to todos.
+Since the category will hold multiple `Todo`s, doctrine has a special `Collection` type for them. There are some caveats when using collections.
+
+1. They must be initialized in the constructor with an empty `ArrayCollection`,
+2. They should be accompanied by a type annotation so your editor can figure out what's inside of it (`/** @var Collection<Type> */`),
+3. Symfony sometimes calls the setter with just an array instead of a `Collection`, so if it gets called with an `array`, we must transform it into a `Collection` in the setter.
+
+`src/Entity/TodoCategory.php`
+```php
+class TodoCategory {
+    // the other fields...
+
+    /** @var Collection<Todo> */
+    #[ORM\OneToMany(mappedBy: 'category', targetEntity: Todo::class)]
+    private Collection $todos;
+
+    public function __construct()
+    {
+        $this->todos = new ArrayCollection();
+    }
+
+    // the existing getters/setters
+
+    /**
+     * @return Collection<Todo>
+     */
+    public function getTodos(): Collection
+    {
+        return $this->todos;
+    }
+
+    /**
+     * @param Collection<Todo>|array<Todo> $todos
+     */
+    public function setTodos(Collection|array $todos): void
+    {
+        $this->todos = !$todos instanceof Collection
+            ? new ArrayCollection($todos)
+            : $todos;
+    }
+}
+```
+
+## Database
+
+So, we've now created these entities, but that doesn't automatically update the database. For that, we need database migrations.
+Migrations are raw SQL that needs to be executed when you modify your entities. Plugins and forumify itself also have migrations that run
+any time they are updated.
+
+Doctrine comes in clutch here as we don't need to write these migrations ourselves. Doctrine can compare your current database schema with all the entities
+it is aware of, and generate the SQL code for us. If you take a peek in `config/packages/doctrine_migrations.yaml` you will see that it defines a namespace and directory
+for our migrations.
+
+Run the following command with our namespace to generate the migrations:
+
+```
+$ symfony console doctrine:migrations:diff --namespace=DoctrineMigrations
+```
+
+This will create a file in the configured directory, so if you open the `migrations/` directory, you should see a new PHP file with our migration.
+It's a good practice to always give your migration a description. If it happens to error later, it'll be much easier to see what went wrong.
+
+Your migration should look something like this:
+
+`migrations/VersionYYYMMDDHHIISS.php`
+```php
+final class VersionYYYYMMDDHHIISS extends AbstractMigration
+{
+    public function getDescription(): string
+    {
+        return 'add todos';
+    }
+
+    public function up(Schema $schema): void
+    {
+        $this->addSql('CREATE TABLE todo (id INT AUTO_INCREMENT NOT NULL, category_id INT DEFAULT NULL, created_by INT DEFAULT NULL, updated_by INT DEFAULT NULL, description VARCHAR(255) NOT NULL, created_at DATETIME DEFAULT NULL, updated_at DATETIME DEFAULT NULL, INDEX IDX_5A0EB6A012469DE2 (category_id), INDEX IDX_5A0EB6A0DE12AB56 (created_by), INDEX IDX_5A0EB6A016FE72E1 (updated_by), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE todo_category (id INT AUTO_INCREMENT NOT NULL, title VARCHAR(255) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('ALTER TABLE todo ADD CONSTRAINT FK_5A0EB6A012469DE2 FOREIGN KEY (category_id) REFERENCES todo_category (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE todo ADD CONSTRAINT FK_5A0EB6A0DE12AB56 FOREIGN KEY (created_by) REFERENCES user (id) ON DELETE SET NULL');
+        $this->addSql('ALTER TABLE todo ADD CONSTRAINT FK_5A0EB6A016FE72E1 FOREIGN KEY (updated_by) REFERENCES user (id) ON DELETE SET NULL');
+    }
+
+    public function down(Schema $schema): void
+    {
+        $this->addSql('ALTER TABLE todo DROP FOREIGN KEY FK_5A0EB6A012469DE2');
+        $this->addSql('ALTER TABLE todo DROP FOREIGN KEY FK_5A0EB6A0DE12AB56');
+        $this->addSql('ALTER TABLE todo DROP FOREIGN KEY FK_5A0EB6A016FE72E1');
+        $this->addSql('DROP TABLE todo');
+        $this->addSql('DROP TABLE todo_category');
+    }
+}
+```
+
+<Alert severity="warning">
+    It is always a good idea to inspect your migration before blindly executing it. Sometimes doctrine will include changes to entities that aren't yours.
+    This can happen when doctrine updates the way entities are mapped to MySQL, but the framework or plugin that the entity belongs to hasn't updated it on their end yet.
+
+    If you notice any SQL statements that are modifying tables that are not part of your application/plugin **you must delete those lines!**
+</Alert>
+
+Now we can execute our migrations:
+```
+$ symfony console doctrine:migrations:migrate
+```
+
+If everything went well, you can now visit your database using a MySQL client and you should see 2 new tables, `todo` and `todo_category`.
+When using a DBAL/ORM like Doctrine, it's generally not a great idea to look at the database directly, but it can be helpful to identify issues if you know what you're looking for.
+
+## Repositories
+
+Last but not least, we need a way to access and modify our entities from within our application.
+For this we'll be using the "Repository Pattern". Repositories act as a barrier between our business logic and our database logic.
+If your application needs to perform some complex queries to fetch data, these functions should exist in the repository, and not in the rest of the application.
+
+So let's create 2 repositories, one for each of our entities. Again, forumify gives a helpful abstraction to Doctrine's native repositories.
+
+`src/Repository/TodoRepository`
+```php
+<?php
+
+namespace App\Repository;
+
+use App\Entity\Todo;
+use Forumify\Core\Repository\AbstractRepository;
+
+class TodoRepository extends AbstractRepository
+{
+    public static function getEntityClass(): string
+    {
+        return Todo::class;
+    }
+}
+```
+
+`src/Repository/TodoCategoryRepository`
+```php
+<?php
+
+namespace App\Repository;
+
+use App\Entity\TodoCategory;
+use Forumify\Core\Repository\AbstractRepository;
+
+class TodoCategoryRepository extends AbstractRepository
+{
+    public static function getEntityClass(): string
+    {
+        return TodoCategory::class;
+    }
+}
+```
+
+In some parts of our application, repositories are dynamically fetched based on the entity. For that reason, it's also recommended
+to define your repositories on the entity's `Entity` attribute.
+
+`src/Entity/Todo.php`
+```php
+#[ORM\Entity(repositoryClass: TodoRepository::class)]
+class Todo { /* ... */ }
+```
+
+`src/Entity/TodoCategory.php`
+```php
+#[ORM\Entity(repositoryClass: TodoCategoryRepository::class)]
+class TodoCategory { /* ... */ }
+```
+
+## Done!
+
+Unfortunately there's not much to see yet. We've just created 2 entities but nowhere to show or manage them...
+In the next guide, we'll create 2 admin CRUD (**c**reate, **r**ead, **u**pdate, **d**elete) controllers for these entities, so we can finally see our work.
+
+### Learn more
+- [Symfony Doctrine Guide](https://symfony.com/doc/current/doctrine.html)
+- [Doctrine ORM](https://www.doctrine-project.org/projects/doctrine-orm/en/3.2/index.html)
