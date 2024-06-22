@@ -89,7 +89,7 @@ volumes:
     database_data:
 ```
 
-Let’s start this up so we can create a database for forumify, and a user with restrictive permissions that the platform can use. Run the following command:
+Now launch the stack:
 
 ```
 $ docker compose up -d
@@ -108,38 +108,32 @@ mysql>
 ```
 
 <Alert severity="info">
-    If you want to use a GUI client from your computer to connect to your server, you should connect through an SSH tunnel to your sever, most clients will have this option, and then connect to localhost:3306.
+    By default, the root user is only accessible on localhost, so on the computer that the server is running on.
+    If you want to use a GUI client from your local computer to connect to a remote server, you should connect through an SSH tunnel to your sever, most clients will have this option, and then connect to localhost:3306.
 </Alert>
 
-Let’s create the database named `forumify`, and a user named `forumify` that can access it, take note of the user’s password because you will need it soon.
+Let’s create a user named `forumify` that can access our forumify database, take note of the user’s password because you will need it soon.
 
 ```docker
 $ mysql -uroot -proot -h127.0.0.1
 
-mysql> CREATE DATABASE forumify;
-Query OK, 1 row affected
-
-mysql> CREATE USER 'forumify'@'localhost' IDENTIFIED BY '<new user password>';
+mysql> CREATE USER 'forumify'@'%' IDENTIFIED BY '<new user password>';
 Query OK, 0 rows affected
 
-mysql> GRANT ALL PRIVILEGES ON forumify.* TO 'forumify'@'localhost';
+mysql> GRANT ALL PRIVILEGES ON forumify.* TO 'forumify'@'%';
 Query OK, 0 rows affected
 
 mysql> exit
 Bye
 ```
 
-Finally, you should change the root password to something else as well. Make sure you take note of it somewhere in case you need it in the future.
-
-```docker
-$ mysql -uroot -proot -h127.0.0.1
-
-mysql> ALTER USER 'root'@'localhost' IDENTIFIED BY '<new root password>';
-Query OK, 0 rows affected
-
-mysql> exit
-Bye
-```
+<Alert severity="warning">
+    Giving users access from anywhere is generally not a good security practice if you also plan to expose your MySQL server to the world (open host port 3306).
+    If you need access to your database from a remote location, use an SSH tunnel. Also use an external docker network to limit access of the forumify user.
+</Alert>
+<Alert severity="warning">
+    You should also change the password of the root user to something more secure than "root".
+</Alert>
 
 ### Forumify
 
@@ -184,6 +178,10 @@ Before launching this, we need to configure 3 environment variables as these are
   - Change the highlighted sections according to your configuration.
 - `MAILER_DSN`: sendmail://default
   - This is the way your platform will send emails. See [Symfony Mailer](https://symfony.com/doc/current/mailer.html#using-built-in-transports).
+
+<Alert severity="info">
+    You can find your MySQL server version by executing the query `SELECT VERSION();`.
+</Alert>
 
 Now we can launch forumify.
 
