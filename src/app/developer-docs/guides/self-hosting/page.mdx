@@ -28,24 +28,15 @@ Docker version x.x.x, build xxxxxx
 
 (If you don’t have docker installed yet, please get it from [here](https://docs.docker.com/engine/install/).)
 
-## Installing forumify
-
 Create a directory in which your docker stack will live, if you already have other docker stacks, you could add it to an existing one as well. For this guide, we’ll start from scratch in your home directory.
 
 ```
 $ mkdir ~/web && cd ~/web
 ```
 
-Next up is downloading the [forumify production template](https://github.com/forumify/forumify-production-template), you can get it from git or download it as a zip and extract it.
-
-```
-$ git clone https://github.com/forumify/forumify-production-template.git forumify
-```
-
-This will install the basic setup in `~/web/forumify`.
-
 <Alert severity="info">
-    If you plan to extend or modify forumify we recommend forking the production template and cloning your fork instead. This way you can `git pull` your changes onto your server and redeploy when needed. See development setup guide for more info.
+    If you plan to extend or modify forumify apart from using plugins we recommend forking the [forumify production template](https://github.com/forumify/forumify-production-template) and cloning it into `~/web/forumify`.
+    This way you can `git pull` your changes onto your server and redeploy when needed. See development setup guide for more info.
 </Alert>
 
 ## Configuring docker compose
@@ -75,7 +66,7 @@ Modify the file as such:
 ```
 services:
     mysql:
-        image: mysql:latest
+        image: mysql:8.4
         container_name: mysql
         ports:
             - '3306:3306'
@@ -141,38 +132,28 @@ With mysql ready to go, the next step is to add forumify to our docker-compose f
 
 ```
 services:
-    mysql:
-        image: mysql:latest
-        container_name: mysql
-        ports:
-            - '3306:3306'
-        environment:
-            MYSQL_ROOT_PASSWORD: 'root'
-        volumes:
-            - database_data:/var/lib/mysql
-        restart: unless-stopped
+    mysql: ...
 
     forumify:
-        build: ./forumify
+        image: forumify:latest
         container_name: forumify
         ports:
             - '8000:80'
         environment:
-            - APP_SECRET=<replace me>
-            - DATABASE_URL=mysql://forumify:<replace me>@mysql:3306/forumify?serverVersion=8.1.0
+            - APP_SECRET=<not-a-real-secret>
+            - DATABASE_URL=mysql://forumify:<replace me>@mysql:3306/forumify?serverVersion=8.4.0
             - MAILER_DSN=sendmail://default
         volumes:
-            - forumify_storage:/usr/src/app/public/storage
+            - ./forumify:/usr/src/app
         restart: unless-stopped
 
 volumes:
     database_data:
-    forumify_storage:
 ```
 
 Before launching this, we need to configure 3 environment variables as these are different for every install, these are found in `services.forumify.environment` in the file above:
 
-- `APP_SECRET`: KtL67cxHYFZjbdE5Yd5y6b9dpwjBjxzU
+- `APP_SECRET`: \<not-a-real-secret\>
   - Set this value to a randomly generated string. From the Symfony documentation: “This is a string that should be unique to your application and it's commonly used to add more entropy to security related operations. Its value should be a series of characters, numbers and symbols chosen randomly and the recommended length is around 32 characters.”
 - `DATABASE_URL`: mysql://**USER**:**PASSWORD**@**HOST**:**PORT**/**DATABASE**?serverVersion=**VERSION**
   - Change the highlighted sections according to your configuration.
@@ -227,6 +208,11 @@ $ curl http://localhost:8000
 To expose forumify, we will be using another docker image. So let’s add it to our services in `docker-compose.yml`:
 
 ```
+services:
+  mysql: ...
+
+  forumify: ...
+
   proxy-manager:
     container_name: proxy-manager
     image: 'jc21/nginx-proxy-manager:latest'
@@ -238,6 +224,9 @@ To expose forumify, we will be using another docker image. So let’s add it to 
       - ./proxy-manager/data:/data
       - ./proxy-manager/letsencrypt:/etc/letsencrypt
     restart: unless-stopped
+
+volumes:
+    database_data:
 ```
 
 This [nginx-proxy-manager](https://nginxproxymanager.com/) is a nice graphical user interface to set up nginx proxies. This proxy will catch all communication coming in from port 80 and port 443, and route it to the correct docker container, in our case, the forumify container. It will also allow us to easily set up an SSL certificate for HTTPS network traffic using Let’s Encrypt.
