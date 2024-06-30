@@ -10,9 +10,46 @@
     "label": "User Manual",
     "children": [
       {
-        "type": "route",
-        "path": "",
-        "label": "User Manual"
+        "type": "collection",
+        "path": "administrator-panel",
+        "label": "Administrator Panel",
+        "children": [
+          {
+            "type": "route",
+            "path": "introduction",
+            "label": "Introduction"
+          },
+          {
+            "type": "route",
+            "path": "",
+            "label": "Dashboard"
+          },
+          {
+            "type": "route",
+            "path": "configuration",
+            "label": "Configuration"
+          },
+          {
+            "type": "route",
+            "path": "users",
+            "label": "Users"
+          },
+          {
+            "type": "route",
+            "path": "forums",
+            "label": "Forums"
+          },
+          {
+            "type": "route",
+            "path": "cms",
+            "label": "CMS"
+          },
+          {
+            "type": "route",
+            "path": "settings",
+            "label": "Settings"
+          }
+        ]
       }
     ]
   },
