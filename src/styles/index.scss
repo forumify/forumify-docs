@@ -9,15 +9,12 @@ main {
   max-width: 280px;
 
   ul {
-    margin-left: var(--spacing-2);
-    padding-left: var(--spacing-2);
+    margin-left: var(--spacing-1);
+    padding-left: var(--spacing-1);
     border-left: var(--border);
+    border-color: rgba(0, 0, 0, 0.03);
     overflow: hidden;
     height: 0;
-
-    li {
-      padding: var(--spacing-1) 0;
-    }
   }
 
   > ul {
@@ -33,6 +30,8 @@ main {
   .btn-link {
     font-size: 0.8rem;
     width: 100%;
+    padding: var(--spacing-2);
+    height: auto;
   }
 }
 
