@@ -4,14 +4,11 @@ import Alert from '@/components/Alert';
 
 In Forums you can create or edit groups and forums.
 
-<Alert severity="info">
-	Image below shows the result on the index.
-</Alert>
-![User edit](/guides/getting-started/forums-panel.png)
+![Forums](/guides/getting-started/forums-panel.png)
 
 ## Groups
 
-Groups are the boxes that contain forums. You can change the order using the arrows, the order you see is the order displayed on your forum. Clicking the pencil, you can edit the name of the group. The 🔒 opens the permissions manager.
+Groups are containers for forums. You can change the order using the arrows, the order you see is the order displayed on your forum. Clicking the pencil, you can edit the name of the group. The 🔒 opens the permissions manager.
 
 When creating a new group you can create a new forum inside this group clicking the ➕ icon.
 
@@ -27,7 +24,12 @@ A forum is where users can create topics. You can create a forum inside a group 
 
 To edit a forum, you have to click it. There you can edit the **name, type, content and group**.
 
-**Type** "Forum" does not allow images on topics, like a traditional forum. Type "Image Board" requires all topics to have an initial image, like 4chan. Type "Mixed" allows images on topics, but it is not required, like Reddit. The type of a forum can be changed later, however, going from "Forum" to "Image Board" will set your forum's logo on all topics.
+**Type**:
+- "Forum" does not allow images on topics, like a traditional forum.
+- "Image Board" requires all topics to have an initial image, like 4chan or imgur.
+- "Mixed" allows images on topics, but it is not required, like Reddit.
+
+The type of forum can be changed later, however, going from "Forum" to "Image Board" will set your forum's logo on all topics.
 
 **Content** is the description of the forum (see image above).
 
@@ -35,6 +37,14 @@ To edit a forum, you have to click it. There you can edit the **name, type, cont
 
 ### Display setting
 
-Used to customize the diplay of the forum. These are the default settings :
+Used to customize the display of the forum and its topics.
 
-![User edit](/guides/getting-started/display-setting.png)
+- "Show topic author": Allows you to hide topic authors on the list page.
+- "Show topic statistics": Show or hide the view, replies and reaction counts.
+- "Show topic last comment by": Show or hide who last commented on the topic.
+- "Show topic preview": If the forum is an image board, the image is shown in the topic list. If the topic does not contain images, the first few sentences are used instead.
+- "Show last comment by": Applies to the forum list instead of the topic list, used to hide the last comment on forums.
+
+The defaults are:
+
+![Display Settings](/guides/getting-started/display-setting.png)
