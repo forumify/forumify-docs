@@ -20,6 +20,18 @@
             "label": "Forums"
           }
         ]
+      },
+      {
+        "type": "collection",
+        "path": "plugins",
+        "label": "Plugins",
+        "children": [
+          {
+            "type": "route",
+            "path": "perscom-plugin",
+            "label": "PERSCOM.io"
+          }
+        ]
       }
     ]
   },
