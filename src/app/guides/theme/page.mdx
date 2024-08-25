@@ -2,13 +2,14 @@ import Alert from '@/components/Alert';
 
 # Themes
 
-Did you creat a beautiful theme for forumify and want to share or sell it on the marketplace? Then you'll have to create a theme.
+Did you create a beautiful theme for forumify and want to share or sell it on the marketplace? Then you'll have to create a theme plugin.
 
 Dissection of a theme:
 ```
 my-cool-theme
   /public
   /src/MyCoolTheme.php
+  /templates
   /composer.json
 ```
 
@@ -48,7 +49,7 @@ then. For example if your theme requires at least version 1 of forumify:
 {
     // ...
     "requires": {
-        "forumify/forumify-platform": "^1.0"
+        "forumify/forumify-platform": ">=1.0"
     }
 }
 ```
@@ -118,16 +119,47 @@ class CoolTheme extends AbstractForumifyTheme
 }
 ```
 
+## Templates
+
+Themes have the ability to override core templates, as well as plugin templates. The top level directory inside templates must match
+`Forumify` for core templates, or the name of the plugin class for plugins, for example `AcmePlugin`. For example:
+
+`templates/Forumify/frontend/base.html.twig`
+
+It is good practice to extend the original template, only override the blocks that you wish to customize,
+and use `parent()` to keep the original content in place.
+That way your theme is less likely to break in future updates of the platform or plugin you are customizing.
+You can extend the original template by using the `@!` prefix.
+
+For example to add a sidebar to the forum list template:
+`/templates/Forumify/frontend/forum/list.html.twig`
+```twig
+{% extends '@!Forumify/frontend/forum/list.html.twig' %}
+{% block body %}
+    <div class="flex gap-4">
+        <div class="w-80">
+            {{ parent() }}
+        </div>
+        <div class="w-20">
+            I am a sidebar!
+        </div>
+    </div>
+{% endblock %}
+```
+
+<Alert severity="info">
+    At the time of writing this guide the ability to override templates is still new. This means that until recently all templates
+    have been built without this feature in mind, which results in many old templates not containing any blocks for you to override.
+
+    If you need additional blocks inside any template, you can add these to the original template and submit a pull request to the
+    [platform repository](https://github.com/forumify/forumify-platform).
+</Alert>
+
 ## Static Resources
 
 Static resources such as CSS stylesheets, images, fonts,... should be placed in the **`/public`** directory.
 When forumify refreshes your theme, for example during initial installation or when updating, it will copy your public directory
 into the user's `/public/themes/<vendor>/<package>` directory.
-
-<Alert severity="info">
-    You can also use asset builders to enable sass/scss, the general convention is to place source assets in the `/assets` directory.
-    The output of your builder can be set to `/public`. Just be aware that anything outside of the public directory will not be copied into userland!
-</Alert>
 
 For example, using the variable we defined in our configuration:
 
@@ -137,6 +169,11 @@ For example, using the variable we defined in our configuration:
     background-color: var(--c-header-color);
 }
 ```
+
+<Alert severity="info">
+    You can also use asset builders to enable sass/scss, the general convention is to place source assets in the `/assets` directory.
+    The output of your builder must be set to `/public`. Just be aware that anything outside of the public directory will not be copied into userland!
+</Alert>
 
 ## Testing
 
@@ -176,3 +213,8 @@ you should also be able to change the header menu color straight from the admin 
     Theme discovery happens during the `forumify:plugins:refresh` command that is automatically executed after installing or updating dependencies with composer.
     If it is not automatically added, you can try running the command manually: `php bin/console forumify:plugins:refresh`.
 </Alert>
+
+## Publishing
+
+Right now the only way to share your plugins and themes is by creating a public git repository and exposing it as a composer package through [Packagist](https://packagist.org/).
+In the future this functionality may be dropped in favor of an in-app marketplace where you can privately publish your plugins/themes and optionally monetize them as well.
