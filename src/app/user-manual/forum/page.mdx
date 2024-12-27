@@ -1,0 +1,146 @@
+import Link from 'next/link';
+import { Plus } from '@phosphor-icons/react/dist/ssr';
+import Alert from '@/components/Alert';
+
+# Forums
+
+Forums are the lifeblood of you community. It's a place for your community members to share their thoughts and interests,
+keep an organized documentation library, give and/or receive help,...
+
+## Managing the forum
+
+You can create and manage forums from the <Link href="/user-manual/admin-panel">Admin Panel</Link>, under Forums.
+
+### Groups
+
+Forums can be grouped together in forum groups. Groups makes it easier for your members to find the right
+forum to post in, as well as making it easier for admins to manage permissions for multiple forums.
+
+To create a new group, use the <span className="btn-link"><Plus /> Create group</span> button at the bottom of the forum editor. Fill in a title,
+and press "Save".
+
+Configure who can see the group, and save.
+
+### Forums
+
+Forums follow a directory like tree-structure, they are comparable to folders on your computer.
+When you open forums in the admin panel, you start at the "index", or root of the tree and each forum is a new branch on this tree.
+A forum can contain forum groups, ungrouped forums, and a list of topics. Topics can have an image, and contain a list of comments.
+
+The taxonomy of the forum is as follows:
+```
+- Index
+  - Group
+    - Forum
+      - Topic
+        - Comment
+  - Forum
+```
+There is no limit to the depth of forums.
+
+To create a forum, press the <span className="btn-link"><Plus /> Create forum</span> button inside a group, or in the "Forums without group" section.
+It's possible to move your forum into a group later if needed.
+
+<Alert severity="info">
+    Ungrouped forums will always appear on the bottom of the forum, below all groups.
+</Alert>
+
+Forums need a title, type, and optionally, you can give your forum some content. This content is displayed on the forum list, and at the top of the page when you open this forum.
+
+On top of that, you can also supply a "Topic Template". This content is simply pre-filled when users create a new topic. This is not enforced, but useful to nudge your users
+in the right direction. In many other forum systems, this would require a pinned topic at the top, which is easily overlooked.
+
+After creating the forum you are asked to set up permissions for your newly created forum.
+
+When you come back from permissions, forumify will open the forum you just created. At the top, you will see a new tab, "Display Settings". Use the display settings
+to further configure the look and feel of your forum. Below the edit form, you will see the same interface as we had on the index.
+
+#### Forum types
+
+Currently forumify ships with 4 different forum types.
+
+- **Text Board**: a classical retro forum experience. This is usually the most common forum type. Users only need to supply a topic title and an initial comment.
+- **Image Board**: enforce users to upload an image along with their topic.
+- **Mixed Board**: similar to image boards, but the option to upload an image is optional.
+- **Support Board**: best for Q&A, users can ask a question, and they can mark a comment as the answer.
+<p></p>
+
+<Alert severity="info">
+    It is possible for plugins to add their own forum types. If you have a question regarding a forum type that is not in the list above, you will have to check which plugin
+    added it and refer to their documentation or ask the plugin maintainer for more info.
+</Alert>
+
+<Alert severity="warning">
+    While you can change the type of a forum after creating it. Once it contains some content, it's generally not advised to change the type anymore.
+    For example, if you change the type from "Text Board" to "Image Board", the existing topics will not have an image yet, and they will receive your forum's logo as default image.
+    When editing these old topics, you will suddenly be required to supply an image.
+</Alert>
+
+### Examples
+
+Let's look at some examples to see what is possible with the right forum type and display settings to recreate the user experience of some popular websites.
+
+#### Reddit
+
+- Title: Reddit Example
+- Type: Mixed Board
+- Permissions:
+    - Guest: view
+    - User: view, create topic, create comment
+- Display Settings:
+    - <input checked disabled type="checkbox" />Show topic author
+    - <input checked disabled type="checkbox" />Show topic statistics
+    - <input disabled type="checkbox" />Show topic last comment by
+    - <input checked disabled type="checkbox" />Show topic preview
+    - <input checked disabled type="checkbox" />Show last comment by
+    - <input disabled type="checkbox" />Only show own topics
+
+#### 4Chan
+
+- Title: 4Chan Example
+- Type: Image Board
+- Permissions:
+    - Guest: view
+    - User: view, create topic, create comment
+- Display Settings:
+    - <input checked disabled type="checkbox" />Show topic author
+    - <input checked disabled type="checkbox" />Show topic statistics
+    - <input checked disabled type="checkbox" />Show topic last comment by
+    - <input checked disabled type="checkbox" />Show topic preview
+    - <input checked disabled type="checkbox" />Show last comment by
+    - <input disabled type="checkbox" />Only show own topics
+
+#### Stack Overflow
+
+- Title: Stack Overflow Example
+- Type: Support Board
+- Permissions:
+    - Guest: view
+    - User: view, create topic, create comment
+- Display Settings:
+    - <input checked disabled type="checkbox" />Show topic author
+    - <input checked disabled type="checkbox" />Show topic statistics
+    - <input checked disabled type="checkbox" />Show topic last comment by
+    - <input checked disabled type="checkbox" />Show topic preview
+    - <input checked disabled type="checkbox" />Show last comment by
+    - <input disabled type="checkbox" />Only show own topics
+
+#### Helpdesk
+
+- Title: Helpdesk Example
+- Type: Support Board
+- Permissions:
+    - Guest: view
+    - User: view, create topic, create comment
+    - Helpdesk Agent*: view, create comment, show all topics\*\*
+- Display Settings:
+    - <input checked disabled type="checkbox" />Show topic author
+    - <input disabled type="checkbox" />Show topic statistics
+    - <input checked disabled type="checkbox" />Show topic last comment by
+    - <input disabled type="checkbox" />Show topic preview
+    - <input checked disabled type="checkbox" />Show last comment by
+    - <input checked disabled type="checkbox" />Only show own topics
+
+*\*Ideally your Helpdesk Agent role should be a moderator role. This will allow them to mark comments as answers, and manage the forum.*
+
+*\*\*The "Show all topics" permission is not visible until you saved the forum with the display setting "only show own topics" enabled.*

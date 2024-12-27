@@ -2,7 +2,7 @@
   {
     "type": "route",
     "path": "",
-    "label": "Introduction"
+    "label": "Home"
   },
   {
     "type": "collection",
@@ -10,35 +10,21 @@
     "label": "User Manual",
     "children": [
       {
-        "type": "collection",
-        "path": "administrator-panel",
-        "label": "Admin Panel",
-        "children": [
-          {
-            "type": "route",
-            "path": "forums",
-            "label": "Forums"
-          }
-        ]
+        "type": "route",
+        "path": "admin-panel",
+        "label": "Admin Panel"
       },
       {
-        "type": "collection",
-        "path": "plugins",
-        "label": "Plugins",
-        "children": [
-          {
-            "type": "route",
-            "path": "perscom-plugin",
-            "label": "PERSCOM.io"
-          }
-        ]
+        "type": "route",
+        "path": "forum",
+        "label": "Forums"
       }
     ]
   },
   {
     "type": "collection",
     "path": "guides",
-    "label": "Guides",
+    "label": "Developers",
     "children": [
       {
         "type": "route",
@@ -86,6 +72,18 @@
         "type": "route",
         "path": "theme",
         "label": "Creating Themes"
+      }
+    ]
+  },
+  {
+    "type": "collection",
+    "path": "plugins",
+    "label": "Plugins",
+    "children": [
+      {
+        "type": "route",
+        "path": "perscom-plugin",
+        "label": "PERSCOM.io"
       }
     ]
   }

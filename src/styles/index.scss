@@ -73,3 +73,15 @@ main {
 .rich-text *:first-child {
   margin-top: 0;
 }
+
+.alert *:last-child {
+  margin-bottom: 0;
+}
+
+span {
+  &.btn-link {
+    height: 30px;
+    cursor: default;
+    padding: var(--spacing-2);
+  }
+}

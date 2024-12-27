@@ -11,26 +11,32 @@
     overflow: hidden;
 
     &:hover {
-        background-color: rgba(0, 0, 0, 0.03);
+        background-color: var(--c-hover);
         transition: ease-in-out 150ms;
     }
 
     &:disabled,
     &[disabled] {
         cursor: default;
-        background-color: rgba(0, 0, 0, 0.03);
+        background-color: var(--c-hover);
     }
 
     i {
         margin-right: var(--spacing-2);
         font-size: 20px;
     }
+
+    i.end-adornment {
+        margin-right: 0;
+        margin-left: var(--spacing-2);
+        font-size: 12px;
+    }
 }
 
 @mixin btn-contained {
     @include btn;
     padding: 0 var(--spacing-4);
-    border-radius: 8px;
+    border-radius: var(--button-border-radius);
     justify-content: center;
     align-items: center;
     font-size: 0.875rem;
@@ -64,7 +70,7 @@
     color: var(--c-primary);
     border: 2px solid var(--border-color);
 
-    &:hover {
+    &:hover:not(&[disabled]):not(&:disabled) {
         color: var(--c-primary-accent);
         border-color: var(--c-primary-accent);
         background-color: transparent;
@@ -84,10 +90,11 @@
 
 .btn-link {
     @include btn;
+    color: var(--c-text-primary);
     align-items: center;
-    justify-content: flex-start;
+    justify-content: start;
     padding: var(--spacing-2) var(--spacing-4);
-    border-radius: 8px;
+    border-radius: var(--button-border-radius);
 }
 
 .menu .btn-link {
@@ -104,5 +111,4 @@
     i {
         margin-right: 0;
     }
-    border-radius: 100px;
 }

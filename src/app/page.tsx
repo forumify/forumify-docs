@@ -1,32 +1,12 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
-import { ArrowRight } from '@phosphor-icons/react';
-
-interface QuickLinkProps extends React.PropsWithChildren {
-  href: string;
-  name: string;
-}
-
-const QuickLink: React.FC<QuickLinkProps> = ({ href, name, children }) => <Link
-  href={href}
-  className="box w-50 flex flex-col justify-between"
-  style={{ minWidth: 300 }}
->
-  <p className="text-small">
-    {children}
-  </p>
-  <p className="mt-6 flex items-center">
-    {name}
-    <ArrowRight />
-  </p>
-</Link>
+import QuickLink from '@/components/QuickLink';
 
 const Page = () => {
   return <div>
     <h1>forumify Documentation</h1>
-    <div className="flex gap-6">
+    <div className="flex gap-6 flex-wrap">
       <QuickLink href="/user-manual" name="User Manual">
         Learn more about using forumify.
       </QuickLink>

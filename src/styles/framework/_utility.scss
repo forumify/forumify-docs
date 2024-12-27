@@ -2,6 +2,10 @@
     display: flex;
 }
 
+.inline-flex {
+    display: inline-flex;
+}
+
 .flex-col {
     flex-direction: column;
 }
@@ -116,4 +120,92 @@
 
 .d-none {
     display: none;
+}
+
+.d-block {
+    display: block;
+}
+
+.d-inline-block {
+    display: inline-block;
+}
+
+.relative {
+    position: relative;
+}
+
+.absolute {
+    position: absolute;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+.border {
+    border: var(--border);
+}
+
+.border-t {
+    border-top: var(--border);
+}
+
+.border-r {
+    border-right: var(--border);
+}
+
+.border-b {
+    border-bottom: var(--border);
+}
+
+.border-l {
+    border-left: var(--border);
+}
+
+@media screen and (min-width: $breakpoint-lg) {
+    .hide-desktop {
+        display: none !important;
+    }
+}
+
+@media screen and (min-width: $breakpoint-md) and (max-width: calc($breakpoint-lg - 1px)) {
+    .hide-tablet {
+        display: none !important;
+    }
+}
+
+@media screen and (max-width: $breakpoint-md) {
+    .hide-phone {
+        display: none !important;
+    }
+}
+
+.rounded {
+    border-radius: var(--border-radius);
+}
+
+.clear-background {
+    background: none !important;
+}
+
+.clear-shadow {
+    box-shadow: none !important;
+}
+
+.grid {
+    display: grid;
+}
+
+.inline-grid {
+    display: inline-grid;
+}
+
+@for $i from 1 to 13 {
+    .grid-col-#{$i} {
+        grid-template-columns: repeat($i, 1fr);
+    }
 }

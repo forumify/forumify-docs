@@ -15,8 +15,9 @@
         line-height: 1.4rem;
     }
 
-    > p {
+    p {
         margin-bottom: var(--spacing-2);
+        min-height: 16px;
     }
 
     ul {
@@ -27,18 +28,28 @@
         list-style-type: decimal;
     }
 
-    ul, ol {
-        margin-bottom: var(--spacing-2);
-    }
-
     ul li {
-        list-style-type: circle;
+        list-style-type: disc;
         margin-left: var(--spacing-6);
     }
 
     ol li {
         list-style-type: decimal;
         margin-left: var(--spacing-6);
+
+        &[data-list="bullet"] {
+            list-style-type: disc;
+        }
+
+        &[class*=ql-indent] {
+            margin-left: calc(13 * var(--spacing-6));
+        }
+
+        @for $i from 1 through 12 {
+            &.ql-indent-#{$i} {
+                margin-left: calc(#{$i + 1} * var(--spacing-6));
+            }
+        }
     }
 
     code {
@@ -53,8 +64,9 @@
         code {
             display: block;
             width: 100%;
-            overflow-x: auto;
         }
+
+        overflow-x: auto;
     }
 
     blockquote {
@@ -86,5 +98,16 @@
 
     img {
         max-width: 100%;
+    }
+
+    .mention {
+        color: var(--c-primary);
+        font-weight: 500;
+        cursor: pointer;
+
+        &:hover {
+            color: var(--c-primary-accent);
+            transition: color ease-in-out 100ms;
+        }
     }
 }

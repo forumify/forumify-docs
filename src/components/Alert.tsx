@@ -5,7 +5,7 @@ interface IAlertProps extends React.PropsWithChildren {
 }
 
 export const Alert: React.FC<IAlertProps> = ({ children, severity }) => <div
-  className={`alert-${severity} mb-2`}
+  className={`alert alert-${severity} mb-2`}
 >
   {children}
 </div>;

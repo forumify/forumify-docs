@@ -1,0 +1,76 @@
+import Link from 'next/link';
+import Alert from '@/components/Alert';
+import {
+    Gauge,
+    Gear,
+    UserList,
+    Chats,
+    Files,
+    Wrench
+} from '@phosphor-icons/react/dist/ssr';
+
+# Admin Panel
+
+The admin panel controls the configuration and setup of all the various components and plugins in your forumify instance.
+
+## Accessing the admin panel
+
+To access the admin panel, click your username in the navigation bar, then select "Admin" from the dropdown menu.
+
+<Alert severity="info">
+    You need to have at least 1 role with the "Administrator" option turned on.
+    The user you created during the installation of your instance received an administrator role.
+
+    For more information regarding roles and permissions, see the <Link href="/user-manual/security">Security guide</Link>.
+</Alert>
+
+## Components
+
+The admin panel is used by different components to allow admins to configure them.
+The components documented here are only components added by forumify-platform. If your instance
+has plugins, custom development,... then this list may not include all the components that you see.
+
+### <Gauge /> Dashboard
+
+The first page you are presented with when you open the admin panel is your dashboard.
+
+<Alert severity="info">
+    The Dashboard is still a work in progress and is subject to change.
+</Alert>
+
+### <Gear /> Configuration
+
+On the configuration page you can modify basic settings regarding your instance.
+
+- General: Basic information regarding your forum,
+- Users: Any settings related to user registration and forum profiles,
+- Spam Protection: reCAPTCHA settings.
+- Emails*: Configuration for your e-mail server.
+
+**Email settings are not available on forumify cloud.*
+
+### <UserList /> Users
+
+Contains a datatable of all of your forum users. You can modify their profile in case it is against your forum's policy,
+assign roles, and give the user badges.
+
+### <Chats /> Forums
+
+The forum component is documented separately, it can be found <Link href="/user-manual/forum">here</Link>.
+
+### <Files /> CMS (Content Management System)
+
+The CMS component is documented separately, it can be found <Link href="/user-manual/cms">here</Link>.
+
+### <Wrench /> Settings
+
+On the settings page you can find all of the components that are less frequently visited and did not receive their own entry in the main navigation.
+
+Here you can find:
+- Badges,
+- Calendars,
+- Menu Builder,
+- Plugins,
+- Reactions,
+- Roles,
+- Themes.
