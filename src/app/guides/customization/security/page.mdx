@@ -11,7 +11,7 @@ everything in `/admin` is automatically protected and only accessible to users w
 ## Controller Security
 
 First of all, it's important to understand the role system in forumify and how roles are used in Symfony.
-This topic is explained in further detail in the Security page, but we'll do a brief recap here.
+This topic is explained in further detail in the <Link href="/user-manual/security">Security</Link> doc, but we'll do a brief recap here.
 
 There are 3 special roles in forumify that can not be modified or deleted.
 - Super Admin: Users with this role have access to **EVERYTHING**, they can never be denied access,
@@ -63,9 +63,9 @@ For example, let's say we only want users to be able to close and add todos, we'
 ```
 
 Now this removes the buttons and inputs from the frontend when someone is visiting but not logged in, but it still leaves
-the LiveComponent vulnerable to someone who is savvy enough to execute the AJAX requests. So we'll use some `IsGranted` attributes on the live actions.
+the LiveComponent vulnerable to someone who is savvy enough to execute XHR requests. So we'll use some `IsGranted` attributes on the live actions.
 
-`src/Frontend/Components/TodoList.php
+`src/Frontend/Components/TodoList.php`
 ```php
 class TodoList
 {
