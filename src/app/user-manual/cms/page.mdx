@@ -1,5 +1,65 @@
+import Link from 'next/link';
+import Alert from '@/components/Alert';
+import { Paperclip, Wrench } from '@phosphor-icons/react/dist/ssr'
+
+
 # Content Management System
 
-The Content Management System, or CMS, is a powerful component that allows you to add custom static and dynamic pages to your website.
+The Content Management System, or CMS, is a powerful component that allows you to add custom pages and content to your website.
 
+CMS consists of 3 sub-components. Pages, snippets and resources.
+
+## Pages
+
+Pages 
+
+## Snippets
+
+
+## Resources
+
+While you could link to any resource, or upload your own assets to your website, the resource system makes it easy for your site admins
+to find and replace static assets.
+
+Resources could be anything, images, downloads,...
+
+### Managing resources
+
+Resources can be uploaded from the admin panel, they can be found under <Wrench /> Settings -> <Paperclip /> Resources.
+
+Simply supply a name and the file and press save. After saving your resource, it will be given a slug.
+Take note of it, **this is what you will need to use the resource** in pages and snippets.
+
+### Using resources
+
+Resources can be used in pages and snippets using the `resource('resource-slug')` twig function
+
+<Alert severityy="info">
+    Currently it is only possible to use resources in Twig/Html pages and snippets. Rich text editor does not support them.
+</Alert>
+
+### Examples
+
+For the following examples, we've created a resource named "My Cool Resource". The slug that was generated for it is "my-cool-resource".
+
+#### Displaying an image
+
+To display a resource as an image, use the `<img>` tag, with the resource in the `src` attribute.
+
+```twig
+<img src="{{ resource('my-cool-resource') }}">
+```
+
+#### Dowloading a file
+
+To make the client download a resource, you can use an `<a>` tag, with the resource in the `href` attribute and setting the `download` attribute.
+
+This example shows a download button.
+
+```twig
+<a class="btn-primary" href="{{ resource('my-cool-resource') }}" download>
+    <i class="ph ph-download-simple"></i>
+    Download
+</a>
+```
 
