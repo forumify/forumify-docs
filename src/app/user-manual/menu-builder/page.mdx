@@ -1,0 +1,34 @@
+import Link from 'next/link';
+import Alert from '@components/Alert';
+import { Wrench, List, Plus } from '@phosphor-icons/react/dist/ssr';
+
+# Menu Builder
+
+The menu builder allows admins to configure the main frontend navigation for their users.
+
+## Managing the menu
+
+The menu builder can be access from the <Link href="/user-manual/admin-panel">Admin Panel</Link>. Under <Wrench /> Settings -> <List /> Menu Builder.
+
+Use the <span className="btn-link"><Plus /> Add Item</span> button to create a new item in your website's menu.
+Enter a label and select a type, then press "Save".
+
+### Menu item types
+
+forumify as well as plugins provide different types of entries for the menu.
+
+- **Collection**: Collections are just groups of menu items. You can nest collections as deep as you want.
+- **Url**: The URL type is the most basic menu item type. Ideally this should only be used for external URLs, to link to other websites.
+- **Route**: Routes are what forumify uses internally to link to different pages. Routes should be used for any internal links.
+When forumify updates, it's possible that the link that is generated behind a route changes, using routes would make sure your item continues to work as expected.
+- **Page**: Provides an easier way to link to a CMS Page.
+- **Forum**: Provides an easier way to link to a Forum.
+- **Calendar**: Provides an easier way to link to a Calendar.
+
+<Alert severity="info">
+    Menu item types are dynamic and new ones can be added by plugins for you to use. The above list are the ones provided by forumify.
+</Alert>
+
+### Permissions
+
+Menu items are tied into the <Link href="/user-manual/security">ACL permission system</Link>. Allowing you to hide/show menu items based on user roles.

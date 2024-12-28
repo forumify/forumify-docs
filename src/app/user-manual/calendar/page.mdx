@@ -1,1 +1,28 @@
+import Link from 'next/link';
+import { Wrench, Calendar, Plus } from '@phosphor-icons/react/dist/ssr';
+
 # Calendar
+
+The calendar component brings basic event scheduling capabilities to your forumify.
+
+## Managing calendars
+
+To get started with this component, you first need to create one or more calendars in the <Link href="/user-manual/admin-panel">Admin Panel</Link>.
+You can find them under <Wrench /> Settings -> <Calendar /> Calendar.
+
+Calendars can be compared to buckets for events. Each calendar has its name, color, and permissions.
+
+## Managing events
+
+Events are managed entirely from the frontend.
+
+### Creating events
+
+When you have the "Manage Events" permission on at least 1 calendar,
+the <span className="btn-link"><Plus /> Create Event</span> button will appear.
+
+### Managing events
+
+Find the event you'd like to modify in the calendar and open it. 
+If you have the "Manage Events" permission you will be able to see the edit and delete icons in the top right of the event popup.
+

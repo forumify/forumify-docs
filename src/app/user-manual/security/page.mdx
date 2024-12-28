@@ -1,1 +1,67 @@
+import Link from 'next/link';
+import { Wrench, LockKey, LockSimple } from '@phosphor-icons/react/dist/ssr';
+import Alert from '@/components/Alert';
+
 # Security
+
+Security is one of the most important parts of any system. Almost all forumify components have security built into them.
+
+forumify has 2 different ways of securing components, pages, entities,...
+
+- Access Control Lists: defined by entities, controls individual fine-grained access for each "action" per role and per item.
+- Role Permissions: defined statically by the platform or plugins, controls access to larger sections or entire components.
+
+## Roles
+
+Everyone visiting your website is given a role. Even users who are not logged in will have the "Guest" role.
+
+Users can have multiple roles. All permissions and ACLs from all the roles the user have are merged together to define what the user can or cannot do.
+
+### Managing roles
+
+You can manage roles in the <Link href="/user-manual/admin-panel">Admin Panel</Link>.
+You can find them under <Wrench /> Settings -> <LockKey /> Roles.
+
+<Alert severity="warning">
+    Security is a complicated topic. It's best practice to have a second account you can use to test and verify the setup of your roles before assigning any
+    real users to them. A misconfiguration of roles could lead to accidentally leaking sensitive data, griefing, or even a total loss of control over your website.
+</Alert>
+
+When creating a role, you can give it a title, and it is highly recommended to give them a description.
+
+Optionally, you can enable the "Administrator" checkbox. Enabling this setting will grant access to the admin panel for all users with this role.
+This checkbox does not grant the user permissions to do anything within the admin panel, the different components are still protected by permissions.
+
+On the role form, in the tab "Permissions", you can assign permissions to the role. The platform, and each plugin that defines permissions, are separated by tabs.
+These permissions are typically meant to (dis)allow access to entire components. For example, if you want to give access to the admin panel to a certain role,
+but only to manage badges, you only select "view" and "manage" under "Settings" -> "Badges".
+
+Finally, to add or remove roles from a user, you have to edit the user. You can then manage their roles using the Roles input.
+
+<Alert severity="info">
+    Roles use a simple 1 dimensional hiearchy. Meaning that you can only assign roles that are equal-or-below your own role. Roles can be sorted using the
+    arrows in front of the rows in the Roles table.
+</Alert>
+
+
+### System roles
+
+There are 3 roles within forumify that can not be deleted or modified:
+
+- **Super Admin**: The Super Admin role bypasses any and all security checks.
+It's the most powerful role in your system and should be treated with extreme care.
+Only the website's owner should have this role. It is given to the user who installed the platform.
+- **User**: The User role is automatically assigned to any user that is logged in.
+- **Guest**: The Guest role is automatically assigned to any user that is *not* logged in.
+
+So if you want to grant access to **all** users, all you have to do is assign the permission to both *User* and *Guest* roles.
+
+## ACL (Access Control Lists)
+
+The most common security mechanism you will see in action is ACL. ACL allows you to enable an action for each role.
+
+ACLs are not managed in the Role's setting, but they are managed in the entity that defines them. 
+Usually when you see a <LockSimple /> button, you are editing the access control for that entity.
+Entities that are governed by ACLs define their own permissions.
+For example, a forum defines the permissions "view", "create topic", "create comment",...
+

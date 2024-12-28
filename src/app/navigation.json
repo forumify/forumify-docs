@@ -18,6 +18,21 @@
         "type": "route",
         "path": "forum",
         "label": "Forums"
+      },
+      {
+        "type": "route",
+        "path": "calendar",
+        "label": "Calendar"
+      },
+      {
+        "type": "route",
+        "path": "menu-builder",
+        "label": "Menu Builder"
+      },
+      {
+        "type": "route",
+        "path": "security",
+        "label": "Security"
       }
     ]
   },

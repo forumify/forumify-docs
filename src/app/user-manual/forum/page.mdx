@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Plus } from '@phosphor-icons/react/dist/ssr';
+import { Plus, Chats } from '@phosphor-icons/react/dist/ssr';
 import Alert from '@/components/Alert';
 
 # Forums
@@ -9,7 +9,7 @@ keep an organized documentation library, give and/or receive help,...
 
 ## Managing the forum
 
-You can create and manage forums from the <Link href="/user-manual/admin-panel">Admin Panel</Link>, under Forums.
+You can create and manage forums from the <Link href="/user-manual/admin-panel">Admin Panel</Link>, under <Chats /> Forums.
 
 ### Groups
 
@@ -144,3 +144,26 @@ Let's look at some examples to see what is possible with the right forum type an
 *\*Ideally your Helpdesk Agent role should be a moderator role. This will allow them to mark comments as answers, and manage the forum.*
 
 *\*\*The "Show all topics" permission is not visible until you saved the forum with the display setting "only show own topics" enabled.*
+
+## Moderating forums
+
+Users who have been given moderator permissions get the ability to moderate forums.
+
+This allows them to:
+- Edit topic titles and images
+- Edit all topic comments
+- Pin topics at the top of the list
+- Hide topics from non-moderators
+- View hidden topics
+- Lock topics from receiving comments
+- Comment on locked topics
+- Move topics to a different forum*
+- Delete topics
+
+*\*Moderators can move topics to any forum they can see, but they do not need to be a moderator in the receiving forum.*
+
+<Alert severity="warning">
+    Currently to give moderator permissions you need to enable the "Moderator" checkbox on a role and assign that role.
+    In the near future, this will change, and moderator will become an ACL permission on forums instead.
+</Alert>
+
