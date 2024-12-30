@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Alert from '@/components/Alert';
-import { Paperclip, Wrench } from '@phosphor-icons/react/dist/ssr'
+import { FileCode, Paperclip, Wrench } from '@phosphor-icons/react/dist/ssr'
 
 
 # Content Management System
@@ -9,12 +9,45 @@ The Content Management System, or CMS, is a powerful component that allows you t
 
 CMS consists of 3 sub-components. Pages, snippets and resources.
 
+<Alert severity="warning">
+    The content management system is still in its infancy.
+    Although it is already an extremely flexible and powerful component, utilizing it to its full potential requires some basic web development skills.
+</Alert>
+
 ## Pages
 
-Pages 
+TBA
 
 ## Snippets
 
+Snippets are small pieces of content that can be re-used, or more easily modified compared to entire pages.
+It's generally a good idea to turn static content into manage-able snippets.
+
+### Managing snippets
+
+Snippets can be managed from the admin panel. Found under <Wrench /> Settings -> <FileCode /> Snippets.
+
+Currently there are 2 types of snippets.
+- **Rich Text**: Use a WYSIWYG rich text editor to enter content.
+- **Twig**: For raw Twig HTML code, requires some web development skill.
+
+After saving a snippet, it will be given a slug. This slug is what you will need to use your snippet in pages or other snippets.
+
+### Using snippets
+
+You can use your snippets anywhere in Twig code, including CMS pages, or even nested in other snippets.
+
+To use a snippet, use the `snippet('snippet-slug')` Twig function.
+
+For example, if you created a snippet with the name "My Cool Snippet", the generated slug would be "my-cool-snippet".
+Then to use your snippet in a page:
+
+```twig
+{% extends '@Forumify/frontend/page.html.twig' %}
+{% block body %}
+    {{ snippet('my-cool-snippet') }}
+{% endblock %}
+```
 
 ## Resources
 
@@ -28,21 +61,17 @@ Resources could be anything, images, downloads,...
 Resources can be uploaded from the admin panel, they can be found under <Wrench /> Settings -> <Paperclip /> Resources.
 
 Simply supply a name and the file and press save. After saving your resource, it will be given a slug.
-Take note of it, **this is what you will need to use the resource** in pages and snippets.
+Take note of it, this is what you will need to use the resource in pages and snippets.
 
 ### Using resources
 
-Resources can be used in pages and snippets using the `resource('resource-slug')` twig function
+Resources can be used in pages and snippets using the `resource('resource-slug')` Twig function
 
-<Alert severityy="info">
-    Currently it is only possible to use resources in Twig/Html pages and snippets. Rich text editor does not support them.
-</Alert>
-
-### Examples
+#### Examples
 
 For the following examples, we've created a resource named "My Cool Resource". The slug that was generated for it is "my-cool-resource".
 
-#### Displaying an image
+##### Displaying an image
 
 To display a resource as an image, use the `<img>` tag, with the resource in the `src` attribute.
 
@@ -50,7 +79,7 @@ To display a resource as an image, use the `<img>` tag, with the resource in the
 <img src="{{ resource('my-cool-resource') }}">
 ```
 
-#### Dowloading a file
+##### Dowloading a file
 
 To make the client download a resource, you can use an `<a>` tag, with the resource in the `href` attribute and setting the `download` attribute.
 
