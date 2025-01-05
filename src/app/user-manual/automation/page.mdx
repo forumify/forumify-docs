@@ -1,0 +1,78 @@
+import { Wrench, GitBranch } from '@phosphor-icons/react/dist/ssr';
+import Link from 'next/link';
+import Alert from '@/components/Alert';
+
+# Automations
+
+
+## Managing Automations
+
+Automations can be managed from the Admin panel. They can be found under <Wrench /> Settings -> <GitBranch /> Automations.
+
+Each automation consists of 3 parts:
+
+1. Trigger
+2. Condition
+3. Action
+
+<Alert severity="info">
+    If you are seeing any triggers, conditions or actions that are not in the documentation below, they are probably added by a plugin, and you should refer to their documentation.
+</Alert>
+
+
+### Trigger
+
+The trigger decides when to execute the action. Triggers also provide the payload which is available in the condition and action.
+
+forumify currently ships with the following triggers:
+
+#### Doctrine: Persist
+
+**Execute**: After an entity is created in the database.
+
+**Payload**:
+- `entity`: object
+
+#### Doctrine: Update
+
+**Execute**: After an entity is updated in the database.
+
+**Payload**:
+- `entity`: object
+
+#### Doctrine: Remove
+
+**Execute**: After an entity is removed from the database.
+
+**Payload**:
+- `entity`: object
+
+### Condition
+
+Once the automation is triggered, conditions make it easier to decide wether to continue with the action or not.
+
+For example, if the trigger is set to "Doctrine: Persist", and the entity is "Topic", a condition can filter only for topics created in a specific forum.
+
+#### Expression
+
+Learn more: <a href="https://symfony.com/doc/current/reference/formats/expression_language.html" target="_blank">Symfony Expression Language</a>
+
+### Action
+
+<Alert severity="warning">
+    While the trigger and condition run synchronously, the action is executed in a message queue worker to prevent a slow running action from impacting user experience.
+    This means that sometimes the automation may seem to "lag behind" a little bit.
+</Alert>
+
+#### Webhook
+
+Sends a POST request to the given webhook URL.
+
+#### HTTP Request
+
+Call any external API using a HTTP request.
+
+## Examples
+
+Examples TBA.
+
