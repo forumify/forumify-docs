@@ -51,8 +51,8 @@ There are 3 roles within forumify that can not be deleted or modified:
 - **Super Admin**: The Super Admin role bypasses any and all security checks.
 It's the most powerful role in your system and should be treated with extreme care.
 Only the website's owner should have this role. It is given to the user who installed the platform.
-- **User**: The User role is automatically assigned to any user that is logged in.
-- **Guest**: The Guest role is automatically assigned to any user that is *not* logged in.
+- **User**: The User role is automatically assigned to every user that is logged in.
+- **Guest**: The Guest role is automatically assigned to every user that is *not* logged in.
 
 So if you want to grant access to **all** users, all you have to do is assign the permission to both *User* and *Guest* roles.
 
@@ -61,7 +61,7 @@ So if you want to grant access to **all** users, all you have to do is assign th
 The most common security mechanism you will see in action is ACL. ACL allows you to enable an action for each role.
 
 ACLs are not managed in the Role's setting, but they are managed in the entity that defines them. 
-Usually when you see a <LockSimple /> button, you are editing the access control for that entity.
+Usually when you see a <LockSimple /> button, you are editing the Access Control List for that entity.
 Entities that are governed by ACLs define their own permissions.
 For example, a forum defines the permissions "view", "create topic", "create comment",...
 

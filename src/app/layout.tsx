@@ -47,6 +47,7 @@ const RootLayout = ({
     </main>
   </div>
 </div>
+<hr className='mt-6 mb-6' />
 <footer className="text-small">
   forumify documentation&nbsp;
   <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.

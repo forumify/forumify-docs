@@ -26,6 +26,11 @@
       },
       {
         "type": "route",
+        "path": "automation",
+        "label": "Automation"
+      },
+      {
+        "type": "route",
         "path": "calendar",
         "label": "Calendar"
       },

@@ -19,7 +19,6 @@ Each automation consists of 3 parts:
     If you are seeing any triggers, conditions or actions that are not in the documentation below, they are probably added by a plugin, and you should refer to their documentation.
 </Alert>
 
-
 ### Trigger
 
 The trigger decides when to execute the action. Triggers also provide the payload which is available in the condition and action.
@@ -67,6 +66,23 @@ Learn more: <a href="https://symfony.com/doc/current/reference/formats/expressio
 #### Webhook
 
 Sends a POST request to the given webhook URL.
+
+For example, to send data to Zapier:
+
+- **Webhook URL**: The webhook URL given by Zapier (Catch Raw Hook)
+- **Data**: The data sent to Zapier, for example with a Doctrine Topic trigger:
+
+```twig
+{{ {
+    topic: entity.title,
+    content: entity.firstComment.content
+}|json_encode|raw }}
+```
+
+<Alert severity="info">
+    The example creates the data object, then JSON encodes it and dumps the raw output. This method is recommended since it
+    takes care of escaping quotes and slashes which may break your JSON.
+</Alert>
 
 #### HTTP Request
 
