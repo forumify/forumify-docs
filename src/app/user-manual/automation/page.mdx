@@ -1,4 +1,4 @@
-import { Wrench, GitBranch } from '@phosphor-icons/react/dist/ssr';
+import { CheckSquare, Wrench, GitBranch } from '@phosphor-icons/react/dist/ssr';
 import Link from 'next/link';
 import Alert from '@/components/Alert';
 
@@ -90,5 +90,73 @@ Call any external API using a HTTP request.
 
 ## Examples
 
-Examples TBA.
+### Discord
+
+Cross-post your topics to a Discord channel using a <a href="https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks" target="_blank">Discord Webhook</a>.
+
+- **Name**: News to Discord
+- **Enabled**: <CheckSquare />
+- **Trigger**: Doctrine: Persist
+- **Entity**: `Forumify\Forum\Entity\Topic`
+- **Condition**: Expression
+- **Expression**: `entity.getForum().getSlug() == 'news'` 
+    - You can find the slug of a forum by visiting it in a browser. *https://example.org/forum/* **this-part-here**,
+- **Webhook URL**: https://discord.com/api/webhooks/*id*/*token*
+    - Use the **Copy Webhook URL** button after creating a webhook in Server Settings -> Integrations -> Webhooks -> New Webhook.
+- **Data**: Something compatible with <a href="https://discord.com/developers/docs/resources/webhook#execute-webhook-jsonform-params">Discord's webhook execution format</a>. For example an embed:
+```twig
+{{ {
+    embeds: [
+        {
+            title: entity.title,
+            description: entity.firstComment.content|html_to_markdown({
+                strip_tags: true,
+                hard_break: true,
+                header_style: 'atx',
+                remove_nodes: 'img',
+            })|u.truncate(4000, '...', false),
+            url: absolute_url(path('forumify_forum_topic', { slug: entity.slug })),
+        }
+    ]
+}|json_encode|raw }}
+```
+
+You can do even more, like prefixing it with a message that includes a link to the forum and the author:
+
+```twig
+{% set user = entity.createdBy %}
+{% set userLink = '[' ~ user.displayName ~ '](' ~ absolute_url(path('forumify_forum_profile', { username: user.username })) ~ ')' %}
+{% set forumLink = '[' ~ entity.forum.title ~ '](' ~ absolute_url(path('forumify_forum_forum', { slug: entity.forum.slug })) ~ ')' %}
+{{ {
+    content: userLink ~ ' just posted a new topic in ' ~ forumLink,
+    embeds: [...]
+}|json_encode|raw }}
+```
+
+### Zapier
+
+Zapier allows you to build incredibly complex automation workflows with tons of templates. Like creating Facebook posts, sending emails, asking ChatGPT, insert into a spreadsheet,...
+
+You can use forumify automations as a trigger for a Zapier workflow.
+
+- **Name**: Events To Zapier
+- **Enabled**: <CheckSquare />
+- **Trigger**: Doctrine: Persist
+- **Entity**: `Forumify\Calendar\Entity\CalendarEvent`
+- **Condition**: Expression
+- **Expression**: `entity.getCalendar().getSlug() == 'workshops'`
+    - You can find the slug of a calendar by visiting it in a browser. *https://example.org/calendar/* **this-part-here**,
+- **Webhook URL**: https://hooks.zapier.com/hooks/catch/*id1*/*id2*/
+    - When you create a Zapier **Catch Hook** trigger, it will automatically generate a Webhook URL for you to use.
+- **Data**: The format for Zapier isn't strict so we just give it the fields we want to use.
+```twig
+{{ {
+    title: entity.title,
+    start: entity.start|date('Y-m-d H:i:s'),
+    content: entity.content,
+    calendar: entity.calendar.title
+}|json_encode|raw }}
+```
+
+If you trigger the automation at least once, your data will become available in Zapier's UI and you can build the rest of your workflow there.
 
