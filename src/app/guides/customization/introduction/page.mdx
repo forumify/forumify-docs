@@ -1,4 +1,5 @@
-import Alert from '../../../../components/Alert';
+import Alert from '@/components/Alert';
+import GuideNavigator from '@/components/GuideNavigator';
 
 # Customizing forumify
 
@@ -9,9 +10,12 @@ With that in mind, we highly recommend getting familiar with the [Symfony Framew
 
 This short guide is a tutorial-style introduction to customizing the forumify platform that covers most of the basic concepts.
 
+<Alert severity="info">
+    If you are looking to get into plugin development, you should follow this guide first to understand the basics.
+</Alert>
 <Alert severity="warning">
-    This kind of customization is only available to self-hosted versions of forumify.
-    If you are using hosted instances you can only customize forumify through plugins and themes from the marketplace.
+    This level of customization is only available to self-hosted versions of forumify.
+    If you are using forumify cloud you can only customize forumify through plugins and themes from the marketplace.
 </Alert>
 
 ## Development Environment
@@ -29,14 +33,38 @@ While you could use the [forumify docker image](https://hub.docker.com/r/forumif
 - [NodeJS](https://nodejs.org/en)
 - [Symfony CLI](https://symfony.com/download)
 
+<Alert severity="error">
+    For Windows users:
+
+    Using the forumify, or any PHP docker image is highly discouraged. The file system emulation is too slow to run large scale PHP apps.
+    Mounting a volume with PHP scripts can slow a single request down to 30-45 seconds!
+
+    If you do want to use docker, use WSL, and install everything inside of your WSL drive!
+</Alert>
+
 ## Development Project
 
-If you are using self-hosting, you can fork the forumify production template.
-You can commit and push all the files that are created to your own git repository. A standard .gitignore will ensure only required files are included.
-Then later, on your production server, you can clone/pull your repository instead of the production template.
+Start by cloning the [forumify production template](https://github.com/forumify/forumify-production-template):
+```
+$ git clone https://github.com/forumify/forumify-production-template.git forumify-app
+$ cd forumify-app
+```
 
-When using forumify cloud hosting, you will have to use sFTP to copy the files from the host to your local environment, make changes, and then upload them back onto the server.
-After uploading these files, you'll have to clear cache so your changes get picked up by forumify.
+This will be your "application" folder. All commands, instructions,... in this guide will be happening inside of this directory.
+
+If you are planning to develop plugins, this will be your sandbox during development for testing.
+
+If you are building a custom forumify application, you can commit and push all the files that are created to your own git repository.
+A standard .gitignore will ensure only required files are included.
+Then later, on your production server, you can clone/pull your repository to update.
+
+Reset git so you can link your own repository later:
+```
+$ rm -rf .git
+$ git init
+$ git add .
+$ git commit -m "initial commit"
+```
 
 ### Installing Dependencies
 
@@ -46,18 +74,18 @@ $ composer install
 $ npm install --force
 ```
 
-This will also use the Symfony Flex composer plugin to set up your project with some basic files that are needed to run the platform.
+This will use the Symfony Flex composer plugin to set up your project with some basic files that are needed to run the platform.
 These files are unique to your project, and you should commit them to version control.
 
-### Docker Compose
+#### Docker Compose
 
 You need 2 services for development, a MySQL server and an email server. You can also add more services like PHPMyAdmin if required.
 
 Here's an example `docker-compose.yml` which you can place at your project's root directory.
-```
+```yaml
 services:
     mysql:
-        image: mysql:latest
+        image: mysql:8.4
         container_name: mysql
         ports:
             - '3306:3306'
@@ -84,7 +112,12 @@ volumes:
     You can go to `localhost:1080` to see all emails sent by your development environment.
 </Alert>
 
-### Environment variables
+Start your dependencies:
+```
+docker compose up -d
+```
+
+#### Environment variables
 
 Inside your project, you will find a `.env` file with some preset environment variables. We'll want to override some for local development.
 
@@ -97,11 +130,24 @@ DATABASE_URL="mysql://root:root@host.docker.internal:3306/forumify?serverVersion
 MAILER_DSN=smtp://host.docker.internal:1025
 ```
 
+#### Database
+
+We can use the following commands to prepare our database:
+```
+$ symfony console doctrine:database:create
+$ symfony console doctrine:migrations:migrate
+```
+
+This will create the database specified in our `.env.local` file, and the migrations will add all tables and basic data required to run forumify.
+
+<Alert severity="info">
+    If you are not using Symfony CLI, replace "symfony console" in these command with "php bin/console".
+</Alert>
+
 ### Ready To Launch
 
-Once all of your dependencies are ready, you can start your webserver. If you're using Symfony CLI and docker-compose, it'd look somewhat like this:
+Once all of your dependencies are ready, you can start your webserver and file watcher:
 ```
-$ docker compose up -d
 $ symfony server:start -d
 $ npm run watch
 ```
@@ -109,16 +155,6 @@ $ npm run watch
 <Alert severity="info">
     If you are using Symfony CLI as web server, it's recommended to install a CA certificate to enable HTTPS for your development environment.
     See [this guide](https://symfony.com/doc/current/setup/symfony_server.html#enabling-tls) for more info.
-</Alert>
-
-When you launch for the first time, you will not have a database yet. You can run the install command to create the database and an initial admin user for you.
-```
-$ symfony console forumify:install
-```
-
-<Alert severity="info">
-    The `symfony` command will only work when you have Symfony CLI installed.
-    You can run console commands without Symfony CLI by using `php bin/console forumify:install` instead.
 </Alert>
 
 ## Finished!
@@ -137,6 +173,19 @@ $ symfony server:start -d
 $ npm run watch
 ```
 
+<Alert severity="info">
+    With Symfony Server you can also create a `.symfony.local.yaml` file that starts the file watcher and message consumers so you don't have to run them manually each time.
+</Alert>
+
+```yaml
+# Symfony HTTP Server config for local development
+workers:
+  npm_encore_watch:
+    cmd: ['npm', 'run', 'watch']
+  messenger_consume_async:
+    cmd: ['symfony', 'console', 'messenger:consume', 'async']
+```
+
 ## What's next?
 
 In the following guides we will be creating a small TODO application inside forumify by using some of the platform's helpers to speed us up.
@@ -149,3 +198,7 @@ This would be a good moment to review the [Symfony Best Practices](https://symfo
 - [Docker](https://docs.docker.com/guides/)
 - [Symfony](https://symfony.com/)
 - [Symfony Web Server](https://symfony.com/doc/current/setup/symfony_server.html)
+
+<GuideNavigator
+    next={{ href: '/guides/customization/entities', label: 'Entities' }}
+/>
