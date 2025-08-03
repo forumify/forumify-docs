@@ -1,0 +1,24 @@
+import GuideNavigator from '@/components/GuideNavigator';
+import Alert from '@/components/Alert';
+
+# Sync
+To keep data up to date, the perscom integration plugin uses 2 way data synchronization. When you edit an item within the plugin, it will automatically be sent to
+PERSCOM.io. All changes from PERSCOM.io are also replicated daily to the plugin.
+
+## Manual Synchronization
+
+If you can not wait until the next automatic sync, you can use the Trigger Manual Sync button in the top right corner of the sync page (Admin Panel > PERSCOM > Sync).
+<Alert severity="info">
+    Clicking Trigger Manual Sync button will launch a two-step confirmation. You'll be taken to a confirmation screen that'll warn you about the full data sync impact and only after you've
+    clicked continue is the sync actually processed. This is an extra step that acts as a failsafe in case the button is pressed accidentally.
+</Alert>
+
+![Sync](/user-manual/plugins/perscom-plugin/sync.jpg)
+
+You can see the history of both manual and automatic syncs as well as a log for each.
+
+![Sync](/user-manual/plugins/perscom-plugin/sync_log.jpg)
+
+<GuideNavigator
+    previous={{ href: '/plugins/perscom-plugin/combat', label: 'Combat Records' }}
+/>

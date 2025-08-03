@@ -106,9 +106,56 @@
     "label": "Plugins",
     "children": [
       {
-        "type": "route",
+        "type": "collection",
         "path": "perscom-plugin",
-        "label": "PERSCOM.io"
+        "label": "PERSCOM.io",
+        "children": [
+          {
+            "type": "route",
+            "path": "introduction",
+            "label": "Introduction"
+          },
+          {
+            "type": "route",
+            "path": "organization",
+            "label": "Organization Setup"
+          },
+          {
+            "type": "route",
+            "path": "enlistment",
+            "label": "Enlistment"
+          },
+          {
+            "type": "route",
+            "path": "assignments",
+            "label": "Assignments"
+          },
+          {
+            "type": "route",
+            "path": "promotions",
+            "label": "Promotions"
+          },
+          {
+            "type": "route",
+            "path": "awards",
+            "label": "Awards"
+          },
+          {
+            "type": "route",
+            "path": "qualifications",
+            "label": "Qualifications"
+          },
+          {
+            "type": "route",
+            "path": "combat",
+            "label": "Combat Records"
+          },
+          {
+            "type": "route",
+            "path": "sync",
+            "label": "Sync"
+          }
+        ]
       }
     ]
   }

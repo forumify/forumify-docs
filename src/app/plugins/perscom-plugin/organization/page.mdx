@@ -1,0 +1,91 @@
+import Alert from '@/components/Alert';
+import GuideNavigator from '@/components/GuideNavigator';
+
+# Organization Introduction
+
+Before soldiers can enlist, check their p-files, and mark their attendance for courses, admins need to set up
+their organization within the PERSCOM.io Admin Control Panel.
+
+## Documents
+Documents provide admins with the ability to attach a visual formal document to a record.
+
+![Documents](/user-manual/plugins/perscom-plugin/document.jpg)
+- **Name**: The name of the position.
+- **Description**: Brief summary outlining the document, only seen in the admin control panel.
+- **Content**: This is what will appear when you open the document in a p-file, you can use placeholders to display user data.
+- *To see what variables you can use, click on the View possible placeholders in the New Document form.*
+
+## Forms
+Forms are a great tool to allow users to submit forms such as Leave of Absence.
+
+![Forms](/user-manual/plugins/perscom-plugin/form1.jpg)
+![Forms](/user-manual/plugins/perscom-plugin/form2.jpg)
+
+- **Name**: The name of the form.
+- **Description**: Brief summary outlining the form, only seen in the admin control panel.
+- **Instructions**: A message that is displayed to the user when they open the form.
+- **Default Status**: When a user submits a form, this'll automatically set the form's status. For example "Pending".
+- **Success Message**: When a user submits a form, this message will be displayed.
+
+<Alert severity="warning">
+    At this moment, while you can create the forms within the integration plugin, you won't be able to create the fields for it. You'll need to head
+    over to your PERSCOM.io and create the fields there.
+</Alert>
+
+## Positions
+Positions provide indication of a user's position within the unit.
+
+![Positions](/user-manual/plugins/perscom-plugin/position.jpg)
+- **Name**: The name of the position.
+- **Description**: Brief summary outlining the position, only seen in the admin control panel.
+
+## Ranks
+Ranks define authority, responsibility, and progression within your unit. At the moment, ranks are structured in a flat list, meaning there is no categories for them.
+
+![Ranks](/user-manual/plugins/perscom-plugin/rank.jpg)
+- **Name**: The name of the rank.
+- **Description**: Brief summary outlining the role.
+- **Abbreviation**: A shortened form used for compact display. (Example: "CPT" for Captain).
+- **Paygrade**: The numeric or letter grade indicating the rank's level within the hierarchy.
+- **Image**: Visual insignia representing the rank, displayed on p-files and rosters.
+
+## Rosters
+Rosters let admins categorise their units.
+
+![Rosters](/user-manual/plugins/perscom-plugin/roster.jpg)
+
+- **Name**: The name of the roster.
+- **Description**: Brief summary outlining the roster, only seen in the admin control panel.
+- **Units**: Select what units are grouped under this roster.
+
+<Alert severity="info">
+    To find out how to create units, scroll down to [Units](#Units)
+</Alert>
+
+## Specalities
+Specalities are a way to identify a user's specialty. As an example for a US Infantryman, their specialty would be 11B (Their MOS). While for a UK soldier with
+training as a sharpshooter, might have "Sharpshooter" as their specialty.
+
+![Specalities](/user-manual/plugins/perscom-plugin/specialty.jpg)
+- **Name**: The name of the specialty.
+- **Description**: Brief summary outlining the specialty, could include the requirements for it.
+- **Abbreviation**: A shortened form used for compact display. (Example: "11B" for Infantryman).
+
+## Statuses
+Statuses inform us of a user's current standing and availability. For example, if a user has the status "LOA" then we know that they're currently not available to attend missions. Setting up statuses is rather easy,
+
+![Statuses](/user-manual/plugins/perscom-plugin/status.jpg)
+- **Name**: The name of the status.
+- **Color**: Give the status a color to make it easily identifiable.
+
+## Units
+Units provide the core organizational structure within your unit. They determine how and where personnel are grouped for missions, administration, and support.
+
+![Units](/user-manual/plugins/perscom-plugin/unit.jpg)
+- **Name**: The name of the unit.
+- **Description**: A description for the unit, this is optional.
+
+<GuideNavigator
+    previous={{ href: '/plugins/perscom-plugin/introduction', label: 'Introduction' }}
+    next={{ href: '/plugins/perscom-plugin/enlistment', label: 'Enlistment' }}
+/>

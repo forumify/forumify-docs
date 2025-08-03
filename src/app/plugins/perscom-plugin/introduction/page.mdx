@@ -1,0 +1,63 @@
+import GuideNavigator from '@/components/GuideNavigator';
+import Alert from '@/components/Alert';
+import { ArrowsLeftRight } from '@phosphor-icons/react/dist/ssr';
+
+# Introduction
+
+**Welcome to the documentation for Forumify's PERSCOM.io Integration Plugin**
+Whether you're brand new to personnel management systems and forumify or just getting started, this guide will walk you through your
+first set up in minutes.
+
+This guide has been  broken up into sections, making it short and sweet for the readers to follow along.
+
+# Installation
+Seamlessly integrate PERSCOM.io into your forumify instance.
+
+Package name for manual installation: `forumify/forumify-perscom-plugin`
+
+## Settings
+
+After installing and activating the plugin, open the plugin settings by clicking the "Manage" dropdown and selecting "Settings".
+
+![Settings](/user-manual/plugins/perscom-plugin/manage.jpg)
+
+- **Endpoint**: Leave this blank.
+- **API Key**: Needs to be created on PERSCOM.io under "System" > "API"
+  - The plugin will be modifying your PERSCOM.io data so it needs access to all scopes do so.
+  - Tip: you can select the first one, then hold shift and select the last one
+
+Save the configuration. You can check if your installation was done correctly by selecting PERSCOM > Users in the admin panel and verify you can see your PERSCOM.io users.
+<Alert severity="warning">
+    If you're using an old key, we recommend creating a new one as PERSCOM.io updated their api so the perscom ID is now part of the API key.
+</Alert>
+
+# Invision Community Migrator
+
+In an effort to save time when moving from Invision Community's PERSCOM plugin to PERSCOM.io in combination with forumify a small
+migration script was created.
+
+You can download the latest .tar from the [releases page](https://github.com/forumify/perscom-migrator/releases).
+For instructions on how to install applications in Invision Community, please check their documentation.
+
+Once you install this application in your Invision Community admin panel a new tab will appear on the left side (<ArrowsLeftRight />).
+
+## Settings
+
+Very similar to the forumify plugin settings.
+
+## Migrate
+
+It is advised to use the status blacklist to ignore users that you do not wish to transfer. If you have a lot of users, you can also use it to batch
+process users per status to circumvent timeouts and perform manual checks.
+
+<Alert severity="error">
+    Depending on the amount of data the script may time out. It is advised to increase your web server's timeout from 30 seconds to at least 20 minutes for this process.
+    Reach out to your website's host if you need assistance with this. You will need to increase Apache/nginx's timeout as well as PHP's `max_execution_time`.
+
+    If you do not see the result page after pressing migrate and your browser has stopped loading, the script may still be running in the background.
+    If you press migrate again while the script is still running you might end up with duplicate records on your users!
+</Alert>
+
+<GuideNavigator
+    next={{ href: '/plugins/perscom-plugin/organization', label: 'Organization Setup' }}
+/>
