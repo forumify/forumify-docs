@@ -149,6 +149,11 @@
             "type": "route",
             "path": "combat",
             "label": "Combat Records"
+          },
+          {
+            "type": "route",
+            "path": "sync",
+            "label": "Sync"
           }
         ]
       }
