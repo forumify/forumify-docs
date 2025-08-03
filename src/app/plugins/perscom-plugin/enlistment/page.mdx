@@ -1,0 +1,42 @@
+import GuideNavigator from '@/components/GuideNavigator';
+import Alert from '@/components/Alert';
+
+# Enlistment Setup
+
+Users that sign up to your website should not need access to PERSCOM.io, so the entire enlistment process is encapsulated within forumify.
+
+
+To set up Enlistments, head over to the admin control panel > PERSCOM > Configuration
+![Enlistment Setup](/user-manual/plugins/perscom-plugin/enlistment.jpg)
+
+On this page you can modify the plugin's behaviour when it comes to enlistments and if it should automatically post the enlistment in a forum
+or assign a default role if you want to make your enlistments forum only visible to enlistees and recruiters.
+
+The integration plugin allows you to create the form within the admin control panel, however, in order to add fields,
+you'll need to head over to your PERSCOM.io > Forms > Edit "Form Name" and click Add field.
+![Enlistment Setup](/user-manual/plugins/perscom-plugin/perscomio_form.jpg)
+
+When a user creates an enlistment, a submission will be made (Admin Panel > PERSCOM > Submissions > "Your Enlistment Form Name").
+From there the enlistment can be accepted or denied.
+
+# Enlistment Flow
+The enlistment flow is a breakdown of the enlistment process for admins to understand.
+
+1) When a forumify user submits an enlistment application through the PERSCOM > Enlist menu, a PERSCOM user is automatically created.
+2) Admins then head to Admin Panel > PERSCOM > Submissions and action the application (Accept/Deny).
+3) Admins then need to create an assignment record for the new PERSCOM user by heading to Admin Panel > PERSCOM > Users and clicking on Quick Actions > New Assignment
+4) Select the new PERSCOM user in the users field and fill out the rest of the fields.
+5) Once submitted, the new PERSCOM user is officially a member of the unit.
+
+<Alert severity="warning">
+    Only forumify users who do not have a PERSCOM user or their PERSCOM user's status has been selected as an enlistment status are eligible to enlist.
+</Alert>
+
+### Keywords
+- Forumify User: A user who does not have an associated PERSCOM user attached to them.
+- PERSCOM User: A user who has enlisted that was approved and has a PERSCOM linked to their forumify user.
+
+<GuideNavigator
+    previous={{ href: '/plugins/perscom-plugin/organization', label: 'Organization Setup' }}
+    next={{ href: '/plugins/perscom-plugin/assignments', label: 'Assignments' }}
+/>
