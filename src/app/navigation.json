@@ -58,6 +58,69 @@
       },
       {
         "type": "collection",
+        "path": "framework",
+        "label": "Framework",
+        "children": [
+          {
+            "type": "collection",
+            "path": "components",
+            "label": "Components",
+            "children": [
+              {
+                "type": "route",
+                "path": "box",
+                "label": "Box"
+              },
+              {
+                "type": "route",
+                "path": "card",
+                "label": "Card"
+              }
+            ]
+          },
+          {
+            "type": "collection",
+            "path": "controllers",
+            "label": "Controllers",
+            "children": [
+              {
+                "type": "route",
+                "path": "menu",
+                "label": "Menu"
+              },
+              {
+                "type": "route",
+                "path": "modal",
+                "label": "Modal"
+              },
+              {
+                "type": "route",
+                "path": "tabs",
+                "label": "Tabs"
+              }
+            ]
+          },
+          {
+            "type": "collection",
+            "path": "layout",
+            "label": "Layout",
+            "children": [
+              {
+                "type": "route",
+                "path": "flex",
+                "label": "Flex"
+              },
+              {
+                "type": "route",
+                "path": "grid",
+                "label": "Grid"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "collection",
         "path": "customization",
         "label": "Customization",
         "children": [
