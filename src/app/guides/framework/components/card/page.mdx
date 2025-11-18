@@ -1,6 +1,61 @@
 import GuideNavigator from '@/components/GuideNavigator';
 
-🚧🚧🚧 This page is a work in progress!! 🚧🚧🚧
+# Card
+
+The Card component is an enhanced version of the [box component](/guides/framework/components/box), by giving structure to the element.
+
+<div class="flex gap-5 items-center">    
+    <div class="w-80">
+        ```html
+            <div class="card">
+                <div class="card-title">Card Title</div>
+                <div class="card-body"> 
+                    This is where content would go
+                </div>
+                <div class="card-footer">by forumify</div>
+            </div>
+        ```
+    </div>
+    <div class="card">
+        <div class="card-title">Card Title</div>
+        <div class="card-body"> 
+            This is where content would go
+        </div>
+        <div class="card-footer">by forumify</div>
+    </div>
+</div>
+
+## Structure
+We recommend structuring a card like below
+
+![Card Component](/guides/framework/components/card/card-structure.png)
+
+<table class="w-70">
+    <thead>
+        <tr>
+            <th>Element</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+        <tbody>
+        <tr>
+            <td>1. Container</td>
+            <td>The container holds all the elements of the card component.</td>
+        </tr>
+        <tr>
+            <td>2. Title</td>
+            <td>The title of the card.</td>
+        </tr>
+        <tr>
+            <td>3. Contents</td>
+            <td>The main body of content within the card.</td>
+        </tr>
+        <tr>
+            <td>4. Footer</td>
+            <td>The footer of the card component is typically used for action buttons.</td>
+        </tr>
+        </tbody>
+</table>
 
 <GuideNavigator
     previous={{ href: '/guides/framework/components/box', label: 'Box' }}
