@@ -1,0 +1,42 @@
+import GuideNavigator from '@/components/GuideNavigator';
+
+# Box
+
+Box is a basic layout component that provides a padded and elevated container for grouping related content.
+
+<div className="flex gap-5 items-center">    
+    <div className="w-80">
+        ```html
+            <div class="box">
+                This is where content would go
+            </div>
+        ```
+    </div>
+    <div className="box">
+        This is where content would go
+    </div>
+</div>
+
+## Structure
+We recommend structuring a box like below
+
+![Card Component](/guides/framework/components/box/box-structure.png)
+
+<table className="w-70">
+    <thead>
+        <tr>
+            <th>Element</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+        <tbody>
+        <tr>
+            <td>1. Container</td>
+            <td>The container holds all the elements of the box component.</td>
+        </tr>
+        </tbody>
+</table>
+
+<GuideNavigator
+    next={{ href: '/guides/framework/components/card', label: 'Card' }}
+/>
