@@ -73,6 +73,11 @@
               },
               {
                 "type": "route",
+                "path": "button",
+                "label": "Button"
+              },
+              {
+                "type": "route",
                 "path": "card",
                 "label": "Card"
               }
