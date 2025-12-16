@@ -2,9 +2,10 @@ import GuideNavigator from '@/components/GuideNavigator';
 import { CaretDown } from '@phosphor-icons/react/dist/ssr';
 
 # Button
+
 The button component adds styles for actions in forms, dialogs, and more.
 
-<div className="flex gap-2">
+<div className="flex gap-2 box w-30">
     <button class="btn-primary">Primary</button>
     <button class="btn-cta">CTA</button>
     <button class="btn-outlined">Outlined</button>
@@ -17,22 +18,22 @@ The button component adds styles for actions in forms, dialogs, and more.
 <button class="btn-outlined">Outlined</button>
 <button class="btn-link">Link</button>
 ```
+
 the ``btn`` tag works on both ``<button>`` and ``<a>`` elements.
 
 ## Sizing
+
 Buttons can come in two different sizes.
 
 <div className="flex gap-2 items-center">
     <div className="text-center">
         <button class="btn-primary">Normal</button>
-
         ```
         <button class="btn-primary">Normal</button>
         ```
     </div>
     <div className="text-center">
         <button class="btn-primary btn-small mb-3">Small</button>
-
         ```
         <button class="btn-small">Small</button>
         ```
@@ -40,19 +41,23 @@ Buttons can come in two different sizes.
 </div>
 
 ## Icon
+
 Sometimes buttons need to have an icon on them. This is where ``btn-icon`` comes into play by removing the margin.
 
-    <button className="btn-primary btn-icon">Menu <CaretDown /></button>
-
+<div className="flex gap-2 items-center">
+    <div className="text-center">
+        <button class="btn-primary"><i><CaretDown/></i></button>
         ```
-        <button class="btn-primary btn-icon">Menu <i class="ph ph-caret-down"></i></button>
+        <button class="btn-primary">Icon</button>
         ```
-    <button className="btn-primary">Menu <CaretDown /></button>
-
+    </div>
+    <div className="text-center">
+        <button class="btn-primary btn-icon"><i><CaretDown/></i></button>
         ```
-        <button class="btn-primary">Menu <i class="ph ph-caret-down"></i></button>
+        <button class="btn-primary btn-icon">Icon</button>
         ```
-
+    </div>
+</div>
 
 <GuideNavigator
     previous={{ href: '/guides/framework/components/box', label: 'Box' }}
