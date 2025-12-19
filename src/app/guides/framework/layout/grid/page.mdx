@@ -5,7 +5,7 @@ import GuideNavigator from '@/components/GuideNavigator';
 Forumify is packed with a flexible mobile focused responsive layout based on CSS Grids. It offers a 12 column system with 
 numerous responsive utilities for building complex layouts across different screen sizes.
 
-**Note:** In this documentation, we utilise the ``border`` component to show the grid property. By default,
+**Note:** In this documentation, we utilise the ``border`` class to show the grid property. By default,
 grids do not use ``border``, therefore grids normally look like this:
 
 <div className="grid">
@@ -29,9 +29,9 @@ Grid containers contain one or more grids arranged in columns and rows. We have 
 </div>
 ```
 <div class="grid">
-    <div class="">col-1</div>
-    <div class="">col-2</div>
-    <div class="">col-3</div>
+    <div>col-1</div>
+    <div>col-2</div>
+    <div>col-3</div>
 </div>  
 ```
 
@@ -174,7 +174,7 @@ different screens.
 
 You can create grids that change column count at different breakpoints using ``grid-{breakpoint}-{columns}``:
 
-<div className="grid-xs-1 grid-s-2 grid-md-4 grid-lg-6">
+<div className="grid-xs-1 grid-sm-2 grid-md-4 grid-lg-6">
     <div className="border">col-1</div>
     <div className="border">col-2</div>
     <div className="border">col-3</div>
@@ -183,7 +183,7 @@ You can create grids that change column count at different breakpoints using ``g
     <div className="border">col-6</div>
 </div>
 ```
-<div class="grid-s-2 grid-md-4 grid-lg-6">
+<div class="grid-xs-1 grid-sm-2 grid-md-4 grid-lg-6">
     <div>col-1</div>
     <div>col-2</div>
     <div>col-3</div>
@@ -193,7 +193,7 @@ You can create grids that change column count at different breakpoints using ``g
 </div> 
 ```
 
-*2 columns on mobile, 4 columns on tablet, 6 columns on desktop.*
+*1 column on mobile portrait, 2 columns on mobile landscape, 4 columns on tablet, 6 columns on desktop.*
 
 
 ### Responsive column spanning

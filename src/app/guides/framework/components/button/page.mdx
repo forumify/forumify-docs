@@ -19,7 +19,7 @@ The button component adds styles for actions in forms, dialogs, and more.
 <button class="btn-link">Link</button>
 ```
 
-the ``btn`` tag works on both ``<button>`` and ``<a>`` elements.
+the ``btn`` class works on both ``<button>`` and ``<a>`` elements.
 
 ## Sizing
 
@@ -46,15 +46,15 @@ Sometimes buttons need to have an icon on them. This is where ``btn-icon`` comes
 
 <div className="flex gap-2 items-center">
     <div className="text-center">
-        <button class="btn-primary"><i><CaretDown/></i></button>
+        <button class="btn-primary"><CaretDown/> Menu</button>
         ```
-        <button class="btn-primary">Icon</button>
+        <button class="btn-primary"><i class="ph ph-caret-down"> Menu</button>
         ```
     </div>
     <div className="text-center">
-        <button class="btn-primary btn-icon"><i><CaretDown/></i></button>
+        <button class="btn-primary btn-icon"><CaretDown/></button>
         ```
-        <button class="btn-primary btn-icon">Icon</button>
+        <button class="btn-primary btn-icon"><i class="ph ph-caret-down""></button>
         ```
     </div>
 </div>
