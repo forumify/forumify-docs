@@ -1,6 +1,232 @@
 import GuideNavigator from '@/components/GuideNavigator';
 
-🚧🚧🚧 This page is a work in progress!! 🚧🚧🚧
+# Grid
+
+Forumify is packed with a flexible mobile focused responsive layout based on CSS Grids. It offers a 12 column system with 
+numerous responsive utilities for building complex layouts across different screen sizes.
+
+**Note:** In this documentation, we utilise the ``border`` class to show the grid property. By default,
+grids do not use ``border``, therefore grids normally look like this:
+
+<div className="grid">
+    <div>col-1</div>
+    <div>col-2</div>
+    <div>col-3</div>
+</div>
+
+## Grid containers
+
+Grid containers contain one or more grids arranged in columns and rows. We have two types of grid containers, ``grid`` and ``inline-grid``.
+
+### Standard grid container
+
+``grid`` creates a grid container with 12 equal columns:
+
+<div className="grid">
+    <div className="border">col-1</div>
+    <div className="border">col-2</div>
+    <div className="border">col-3</div>
+</div>
+```
+<div class="grid">
+    <div>col-1</div>
+    <div>col-2</div>
+    <div>col-3</div>
+</div>  
+```
+
+### Inline grid container
+
+``inline-grid`` creates an inline grid container that doesn't take up the full width.
+
+<div className="inline-grid">
+    <div className="border">col-1</div>
+    <div className="border">col-2</div>
+    <div className="border">col-3</div>
+</div>
+```
+<div class="inline-grid">
+    <div>col-1</div>
+    <div>col-2</div>
+    <div>col-3</div>
+</div>  
+```
+
+## Grid columns
+
+You can specify the number of columns for your grid using ``grid-``:
+
+<div className="grid-3">
+    <div className="border">col-1</div>
+    <div className="border">col-2</div>
+    <div className="border">col-3</div>
+</div>
+```
+<div class="grid-3">
+    <div>col-1</div>
+    <div>col-2</div>
+    <div>col-3</div>
+</div>  
+```
+
+<div className="grid-4">
+    <div className="border">col-1</div>
+    <div className="border">col-2</div>
+    <div className="border">col-3</div>
+    <div className="border">col-4</div>
+</div>
+```
+<div class="grid-4">
+    <div>col-1</div>
+    <div>col-2</div>
+    <div>col-3</div>
+    <div>col-4</div>
+</div>  
+```
+
+Available classes:
+- ``grid-1`` through ``grid-12``
+- ``inline-grid-1`` through ``inline-grid-12``
+
+## Column spanning
+
+Control how many columns an element should span within a grid using ``col-``:
+
+<div className="grid">
+    <div className="col-6 border">col-1 (6 columns)</div>
+    <div className="col-3 border">col-2 (3 columns)</div>
+    <div className="col-3 border">col-3 (3 columns)</div>
+</div>
+```
+<div class="grid">
+    <div class="col-6">col-1 (6 columns)</div>
+    <div class="col-3">col-2 (3 columns)</div>
+    <div class="col-3">col-3 (3 columns)</div>
+</div>  
+```
+
+<div className="grid">
+    <div className="col-6 border">col-1 (6 columns)</div>
+    <div className="col-6 border">col-2 (6 columns)</div>
+</div>
+```
+<div class="grid">
+    <div class="col-6">col-1 (6 columns)</div>
+    <div class="col-6">col-2 (6 columns)</div>
+</div>  
+```
+
+Available classes:
+- ``col-1`` through ``col-12``
+
+## Responsive grids
+
+The grid system includes responsive variants that apply at specific breakpoints, allowing you to create different layouts for
+different screens.
+
+### Breakpoints
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Breakpoint</th>
+            <th>Class</th>
+            <th>Min Width</th>
+            <th>Typical Device</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Extra Small</td>
+            <td>``xs``</td>
+            <td>0px</td>
+            <td>Mobile phones (portrait)</td>
+        </tr>
+        <tr>
+            <td>Small</td>
+            <td>``sm``</td>
+            <td>600px</td>
+            <td>Mobile phones (landscape)</td>
+        </tr>
+        <tr>
+            <td>Medium</td>
+            <td>``md``</td>
+            <td>900px</td>
+            <td>Tablets</td>
+        </tr>
+        <tr>
+            <td>Large</td>
+            <td>``lg``</td>
+            <td>1200px</td>
+            <td>Desktops</td>
+        </tr>
+        <tr>
+            <td>Extra Large</td>
+            <td>``xl``</td>
+            <td>1536px</td>
+            <td>Large Desktops</td>
+        </tr>
+    </tbody>
+</table>
+
+### Responsive grid containers
+
+You can create grids that change column count at different breakpoints using ``grid-{breakpoint}-{columns}``:
+
+<div className="grid-xs-1 grid-sm-2 grid-md-4 grid-lg-6">
+    <div className="border">col-1</div>
+    <div className="border">col-2</div>
+    <div className="border">col-3</div>
+    <div className="border">col-4</div>
+    <div className="border">col-5</div>
+    <div className="border">col-6</div>
+</div>
+```
+<div class="grid-xs-1 grid-sm-2 grid-md-4 grid-lg-6">
+    <div>col-1</div>
+    <div>col-2</div>
+    <div>col-3</div>
+    <div>col-4</div>
+    <div>col-5</div>
+    <div>col-6</div>
+</div> 
+```
+
+*1 column on mobile portrait, 2 columns on mobile landscape, 4 columns on tablet, 6 columns on desktop.*
+
+
+### Responsive column spanning
+
+Adjust how many columns an element spans at different breakpoints using ``col-{breakpoint}-{span}``:
+
+<div className="grid">
+    <div className="col-12 col-md-6 col-lg-4 border">
+        col-1
+    </div>
+</div>
+```
+<div class="grid">
+    <div class="col-12 col-md-6 col-lg-4">
+        col-1
+    </div>
+</div>
+```
+*Full width on mobile, half on tablet, third on desktop.*
+
+<div className="grid">
+    <div className="col-12 col-md-8 border">
+        col-1
+    </div>
+</div>
+```
+<div class="grid">
+    <div class="col-12 col-md-8">
+        col-1
+    </div>
+</div>
+```
+*Full width on mobile, two-thirds on tablet and up.*
 
 <GuideNavigator
     previous={{ href: '/guides/framework/layout/flex', label: 'Flex' }}
