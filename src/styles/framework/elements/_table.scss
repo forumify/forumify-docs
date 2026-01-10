@@ -1,7 +1,11 @@
+@use '../mixins';
+@use '../typography';
+
 table {
     width: 100%;
     border-collapse: collapse;
     background-color: var(--c-elevation-1);
+    border-radius: var(--border-radius);
 }
 
 thead {
@@ -50,7 +54,7 @@ tfoot {
 }
 
 .table-wrapper {
-    @include box-shadow;
+    @include mixins.box-shadow;
     position: relative;
 }
 

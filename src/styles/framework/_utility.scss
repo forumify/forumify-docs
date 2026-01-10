@@ -1,3 +1,5 @@
+@use '../framework/breakpoints';
+
 .flex {
     display: flex;
 }
@@ -66,9 +68,13 @@
     flex-wrap: wrap;
 }
 
-@for $i from 0 to 26 {
+@for $i from 0 to 21 {
     .w-#{$i * 5} {
         width: #{$i * 5%};
+    }
+
+    .h-#{$i * 5} {
+        height: #{$i * 5%};
     }
 }
 
@@ -166,19 +172,19 @@
     border-left: var(--border);
 }
 
-@media screen and (min-width: $breakpoint-lg) {
+@media screen and (min-width: breakpoints.$breakpoint-lg) {
     .hide-desktop {
         display: none !important;
     }
 }
 
-@media screen and (min-width: $breakpoint-md) and (max-width: calc($breakpoint-lg - 1px)) {
+@media screen and (min-width: breakpoints.$breakpoint-md) and (max-width: calc(breakpoints.$breakpoint-lg - 1px)) {
     .hide-tablet {
         display: none !important;
     }
 }
 
-@media screen and (max-width: $breakpoint-md) {
+@media screen and (max-width: breakpoints.$breakpoint-md) {
     .hide-phone {
         display: none !important;
     }
@@ -196,16 +202,4 @@
     box-shadow: none !important;
 }
 
-.grid {
-    display: grid;
-}
 
-.inline-grid {
-    display: inline-grid;
-}
-
-@for $i from 1 to 13 {
-    .grid-col-#{$i} {
-        grid-template-columns: repeat($i, 1fr);
-    }
-}
