@@ -1,0 +1,30 @@
+import Link from 'next/link';
+import { Wrench, IdentificationBadge } from '@phosphor-icons/react/dist/ssr';
+
+# Identity Providers
+
+Identity providers are external platforms that are trusted by your website to create and authenticate users.
+They provide a seamless login experience by allowing users to use their external accounts to directly access the website.
+
+An identity provider will add a button on the login page that the user can use to authenticate.
+
+## Managing IDPs
+
+To create or manage identity providers, head over to the <Link href="/user-manual/admin-panel">Admin Panel</Link>. Under <Wrench /> Settings -> <IdentificationBadge /> Identity providers.
+
+At this moment, forumify comes with 2 configurable identity providers out of the box. **Google** and **Discord**.
+However, the system is flexible, and plugins or the application code can provide additional IDP types.
+
+Each IDP will have extensive in-app documentation to guide you on how to configure the IDP.
+
+## How does it work?
+
+Each IDP will add a log-in button to forumify's login page. When clicked, the user gets redirected to the external
+identity provider, where they log-in or still have an active session. The user will then be redirected back to the
+forumify website with an authorization code. This code is then exchanged on the backend with the provider for an
+access or identity token. This token can directly be decoded or can be used to get user information from the provider.
+
+forumify will then try to match the identifier from the user (typically their e-mail) with a user in forumify.
+If this user is known, they will be logged in. If not, an account is created for them, and logged in.
+
+In case that an account is created, they will still have to verify their e-mail on forumify.

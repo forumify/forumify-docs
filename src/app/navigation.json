@@ -31,8 +31,8 @@
       },
       {
         "type": "route",
-        "path": "calendar",
-        "label": "Calendar"
+        "path": "identity-provider",
+        "label": "Identity Providers"
       },
       {
         "type": "route",
@@ -173,6 +173,11 @@
     "path": "plugins",
     "label": "Plugins",
     "children": [
+      {
+        "type": "route",
+        "path": "calendar-plugin",
+        "label": "Calendar"
+      },
       {
         "type": "collection",
         "path": "perscom-plugin",

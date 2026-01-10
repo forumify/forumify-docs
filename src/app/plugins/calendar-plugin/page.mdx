@@ -1,0 +1,44 @@
+import Link from 'next/link';
+import { Wrench, Calendar, Plus } from '@phosphor-icons/react/dist/ssr';
+
+# Calendar
+
+The calendar plugins brings basic event scheduling capabilities to your forumify website.
+
+## Managing calendars
+
+To get started with this plugin, you first need to create one or more calendars in the <Link href="/user-manual/admin-panel">Admin Panel</Link>.
+You can find them under <Wrench /> Settings -> <Calendar /> Calendar.
+
+Calendars can be compared to buckets for events. Each calendar has a name, color, and permissions.
+
+### Adding the calendar to your menu
+
+There is no dedicated calendar menu item to add to your <Link href="/user-manual/menu-builder">menu builder</Link>.
+
+The best way to add it to your menu, is using a menu item using the "Route" type and setting the route to `forumify_calendar_all`.
+To directly access a specific calendar, you can include its slug in the route parameters:
+
+```json
+{
+    "slug": "example-calendar"
+}
+```
+*\*The slug is a safe version of the title, you can find it by selecting the calendar in the frontend, and looking at the URL.*
+
+
+## Managing events
+
+Events are managed entirely from the frontend.
+
+### Creating events
+
+When you have the "Manage Events" permission on at least 1 calendar,
+the <span className="btn-link"><Plus /> Create Event</span> button will appear.
+
+The event end time is optional, but when not provided, on the week-view it will use 1 hour by default.
+
+### Managing events
+
+Find the event you'd like to modify in the calendar and open it.
+If you have the "Manage Events" permission you will be able to see the edit and delete icons in the top right of the event popup.

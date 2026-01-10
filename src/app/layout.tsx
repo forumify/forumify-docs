@@ -47,14 +47,16 @@ const RootLayout = ({
     </main>
   </div>
 </div>
-<hr className='mt-6 mb-6' />
 <footer className="text-small">
-  forumify documentation&nbsp;
-  <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.
-  Any code samples presented are licensed under the original&nbsp;
-  <a href="https://github.com/forumify/forumify-platform/blob/master/LICENSE.md" target="_blank">
-    forumify platform license
-  </a>.
+  <hr className="mb-6 mt-6" />
+  <div className="flex flex-wrap justify-center">
+    forumify documentation&nbsp;
+    <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>.
+    Any code samples presented are licensed under the original&nbsp;
+    <a href="https://github.com/forumify/forumify-platform/blob/master/LICENSE.md" target="_blank">
+      forumify platform license
+    </a>.
+  </div>
 </footer>
 </body>
 </html>;

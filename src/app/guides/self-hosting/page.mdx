@@ -187,7 +187,7 @@ Once you see those 2 lines at the end of the output, the platform has successful
 Now we can use the platform install command to set up some initial values and create an admin user:
 
 ```
-$ docker exec -u nginx -it forumify ash -c "/usr/src/app/bin/console forumify:install"
+$ docker exec -it forumify bash -c "/usr/src/app/bin/console forumify:install"
 
 ...
 [OK] forumify configured successfully!
