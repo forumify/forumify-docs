@@ -1,0 +1,76 @@
+import GuideNavigator from '@/components/GuideNavigator';
+
+# Courses
+
+Courses allow you to create trainings and courses, track attendance of instructors and students, and automatically
+create qualification and service records based on their performance. This feature requires MILHQ Premium.
+
+## How to create a new course
+
+Head over to Courses (Admin Panel > MILHQ > Courses) and create a new course.
+
+![Admin Panel Courses](/user-manual/plugins/milhq-plugin/courses-admin.png)
+
+- **Title**: This is the title of the course.
+- **Description**: Explain what the course is about.
+- **Image**: Image that represents the course.
+- **Minimum Rank**: You can restrict what ranks can take part in the course. All ranks equal or above will be eligible.
+- **Prerequisites**: Restrict who can attend by setting qualification prerequisites.
+- **Qualifications**: Set what qualifications can be awarded from completing this course.
+
+### How to create a course instructor role
+
+Course instructor roles let you distinguish between different roles of instructors that they can sign up to. Once you've
+created a course, edit it, click on the instructors tab, then click on the + button.
+
+![Course Instructors](/user-manual/plugins/milhq-plugin/course-instructors.png)
+
+
+# Classes
+
+Once you've created a course, you're able to create a class for the course. This is where people can RSVP, see the
+instructors and trainees, and see relevant information about the class.
+
+## How to create a new class
+
+Head over to the Operations Center and click on Training & Schools, click on the course and then click New Class.
+
+![New Class](/user-manual/plugins/milhq-plugin/new-class.png)
+
+- **Title**: Title of the class.
+- **Description**: Explain any additional class information, equipment to bring, where to assemble.
+- **Signup from**: Set the date from when people can sign up to the class.
+- **Signup Until**: Set the date for the last day which people can sign up to the class.
+- **Start**: Class start date.
+- **End**: Class end date.
+- **Student Slots**: Set how many students can sign up. Leave blank to allow unlimited or set to 0 to disable signups.
+
+## Class Page
+
+Once you've created a class, you can head to the class page to RSVP, Submit Class Reports, Edit the class, and see who
+has RSVP'ed.
+
+![Class Page](/user-manual/plugins/milhq-plugin/class-page.png)
+
+## How to submit a class report
+
+A Class Report lets you submit a report for individual soldiers, as well as awarding the qualification for the course.
+
+![Class Report](/user-manual/plugins/milhq-plugin/class-report.png)
+
+**Instructors**
+- **Present**: Tick if the RSVP'ed instructor was present.
+- **Role**: If you created instructor roles, this is where you can select the individual instructor's role.
+- **Add Instructor**: If an instructor joined but had not RSVP'ed, you can still add them to the class report.
+
+**Students**
+- **Result**: This is the individual student's class result.
+- **Qualifications**: You can award qualifications to the individual student.
+- **Service Record Text Override**: You can override the service record text.
+- **Add Student**: If a spot opens up mid-game and is taken by a student who didn't RSVP, then you can still add them
+to the class report.
+
+<GuideNavigator
+    previous={{ href: '/plugins/milhq-plugin/combat-records', label: 'Combat Records' }}
+    next={{ href: '/plugins/milhq-plugin/enlistment', label: 'Enlistment' }}
+/>
