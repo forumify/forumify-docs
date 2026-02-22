@@ -180,6 +180,78 @@
       },
       {
         "type": "collection",
+        "path": "milhq-plugin",
+        "label": "MILHQ",
+        "children": [
+          {
+            "type": "route",
+            "path": "introduction",
+            "label": "Introduction"
+          },
+          {
+            "type": "route",
+            "path": "organization-setup",
+            "label": "Organization Setup"
+          },
+          {
+            "type": "route",
+            "path": "enlistment",
+            "label": "Enlistment"
+          },
+          {
+            "type": "route",
+            "path": "forms",
+            "label": "Forms"
+          },
+          {
+            "type": "route",
+            "path": "assignments",
+            "label": "Assignments"
+          },
+          {
+            "type": "route",
+            "path": "promotions",
+            "label": "Promotions"
+          },
+          {
+            "type": "route",
+            "path": "awards",
+            "label": "Awards"
+          },
+          {
+            "type": "route",
+            "path": "qualifications",
+            "label": "Qualifications"
+          },
+          {
+            "type": "route",
+            "path": "combat-records",
+            "label": "Combat Records"
+          },
+          {
+            "type": "route",
+            "path": "courses",
+            "label": "Courses"
+          },
+          {
+            "type": "route",
+            "path": "operations",
+            "label": "Operations"
+          },
+          {
+            "type": "route",
+            "path": "attendance-tracking",
+            "label": "Attendance Tracking"
+          },
+          {
+            "type": "route",
+            "path": "report-in",
+            "label": "Report In"
+          }
+        ]
+      },
+      {
+        "type": "collection",
         "path": "perscom-plugin",
         "label": "PERSCOM.io",
         "children": [

@@ -1,0 +1,22 @@
+import GuideNavigator from '@/components/GuideNavigator';
+import { Star } from '@phosphor-icons/react/dist/ssr';
+
+Premium Feature <Star size={16} weight="fill" color="#FFD700" />
+
+# Attendance Tracking
+
+The Attendance Sheet in the Operations Center allows for attendance tracking. This feature requires MILHQ Premium.
+
+![Attendance Sheet](/user-manual/plugins/milhq-plugin/attendance-tracking.png)
+
+- **From**: The start date.
+- **To**: The end date.
+- **Unit**: Specify the unit you'd like to generate an attendance sheet for. Can be left blank to show every unit
+that has at least 1 after action report within the selected time period.
+- **Operation**: You can specify which operation to generate the attendance sheet for. Leave blank to generate it
+for all operations.
+
+<GuideNavigator
+    previous={{ href: '/plugins/milhq-plugin/operations', label: 'Operations' }}
+    next={{ href: '/plugins/milhq-plugin/report-in', label: 'Report in' }}
+/>
