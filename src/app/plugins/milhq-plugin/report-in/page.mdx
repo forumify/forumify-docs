@@ -1,3 +1,28 @@
 import GuideNavigator from '@/components/GuideNavigator';
+import { Star } from '@phosphor-icons/react/dist/ssr';
 
-Page in construction.
+Premium Feature <Star size={16} weight="fill" color="#FFD700" />
+
+# Reporting In
+
+Reporting In is a great way to gauge activity within your unit.
+
+## Setup
+
+To set up reporting in, head over to Admin Panel > MILHQ > Configuration and click on the Report In tab.
+
+![Report in Configuration](/user-manual/plugins/milhq-plugin/reportin-configuration.png)
+
+- **Enabled**: By default, the feature is disabled. Ticking it will enable it.
+- **Enabled Status**: Select which statuses are checked for report in activity.
+- **Period (In Days)**: Input how many days it takes before a soldier's status gets changed.
+- **Warning Period (In Days)**: Input how many days of not reporting in until the soldier receives a warning notification
+- **Failure Status**: If a soldier fails to report in, this will be the status they receive.
+
+## How to report in
+
+To report in, head over to the Operations Center and click on the <button type="button" className="btn-primary w-10"><i className="ph ph-door-open"></i>Report In</button> Button.
+
+<GuideNavigator
+    previous={{ href: '/plugins/milhq-plugin/qualifications', label: 'Qualifications' }}
+/>
