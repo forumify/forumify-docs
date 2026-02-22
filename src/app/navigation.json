@@ -195,18 +195,33 @@
           },
           {
             "type": "route",
+            "path": "enlistment",
+            "label": "Enlistment"
+          },
+          {
+            "type": "route",
+            "path": "forms",
+            "label": "Forms"
+          },
+          {
+            "type": "route",
             "path": "assignments",
             "label": "Assignments"
           },
           {
             "type": "route",
-            "path": "attendance-tracking",
-            "label": "Attendance Tracking"
+            "path": "promotions",
+            "label": "Promotions"
           },
           {
             "type": "route",
             "path": "awards",
             "label": "Awards"
+          },
+          {
+            "type": "route",
+            "path": "qualifications",
+            "label": "Qualifications"
           },
           {
             "type": "route",
@@ -220,28 +235,13 @@
           },
           {
             "type": "route",
-            "path": "enlistment",
-            "label": "Enlistment"
-          },
-          {
-            "type": "route",
-            "path": "forms",
-            "label": "Forms"
-          },
-          {
-            "type": "route",
             "path": "operations",
             "label": "Operations"
           },
           {
             "type": "route",
-            "path": "promotions",
-            "label": "Promotions"
-          },
-          {
-            "type": "route",
-            "path": "qualifications",
-            "label": "Qualifications"
+            "path": "attendance-tracking",
+            "label": "Attendance Tracking"
           },
           {
             "type": "route",
