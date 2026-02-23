@@ -210,8 +210,8 @@
           },
           {
             "type": "route",
-            "path": "promotions",
-            "label": "Promotions"
+            "path": "ranks",
+            "label": "Ranks"
           },
           {
             "type": "route",
