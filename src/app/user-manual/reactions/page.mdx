@@ -1,0 +1,25 @@
+import Link from 'next/link';
+import { Wrench } from '@phosphor-icons/react/dist/ssr';
+
+# Reactions
+
+Reactions allow users to respond to forum comments with an image, similar to emoji reactions on other platforms.
+Each reaction can be configured to affect the reputation of the comment's author.
+
+## Managing Reactions
+
+Reactions are managed in the <Link href="/user-manual/admin-panel">Admin Panel</Link> under <Wrench /> Settings -> Reactions.
+
+When creating or editing a reaction, you can configure the following fields:
+
+- **Name**: The name of the reaction (e.g. "Like", "Thanks", "Disagree").
+- **Image**: An image representing the reaction. The recommended size is 64x64 pixels.
+- **Reputation**: The reputation impact when a user uses this reaction on a comment:
+  - **Positive**: Adds 1 to the author's reputation.
+  - **Neutral**: No reputation change.
+  - **Negative**: Subtracts 1 from the author's reputation.
+
+## User Experience
+
+Reactions appear below each forum comment. Users can click a reaction to add it, or click it again to remove it.
+The total count for each reaction is shown next to the reaction image, allowing the community to express sentiment at a glance.

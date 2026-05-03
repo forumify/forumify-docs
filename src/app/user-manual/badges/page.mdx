@@ -1,0 +1,33 @@
+import Link from 'next/link';
+import { Wrench } from '@phosphor-icons/react/dist/ssr';
+
+# Badges
+
+Badges are awards you can create and assign to users to recognize achievements, contributions, or membership status.
+They are displayed on a user's profile page and can optionally appear next to the user's name in forum posts.
+
+## Managing Badges
+
+Badges are managed in the <Link href="/user-manual/admin-panel">Admin Panel</Link> under <Wrench /> Settings -> Badges.
+
+When creating or editing a badge, you can configure the following fields:
+
+- **Name**: The name of the badge.
+- **Description**: An optional description explaining what the badge is for.
+- **Image**: An image representing the badge. The recommended size is 64x64 pixels.
+- **Show on Forum**: When enabled, the badge will be displayed next to the user's name on forum posts in addition to their profile page.
+
+## Assigning Badges
+
+Badges can be assigned to users in two ways:
+
+### Manually
+
+Open the user in the <Link href="/user-manual/admin-panel">Admin Panel</Link> under Users, then use the "Manage Badges" option to add or remove badges from that user.
+
+### Via Automation
+
+Badges can be assigned automatically using the **Give Badge** action in <Link href="/user-manual/automation">Automations</Link>.
+This allows you to award badges based on events, such as when a user creates their first topic or reaches a certain post count.
+
+When a user receives a badge, they are notified automatically.
