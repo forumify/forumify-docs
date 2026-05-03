@@ -43,6 +43,16 @@
         "type": "route",
         "path": "security",
         "label": "Security"
+      },
+      {
+        "type": "route",
+        "path": "badges",
+        "label": "Badges"
+      },
+      {
+        "type": "route",
+        "path": "reactions",
+        "label": "Reactions"
       }
     ]
   },
