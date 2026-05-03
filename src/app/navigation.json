@@ -121,6 +121,11 @@
                 "label": "Grid"
               }
             ]
+          },
+          {
+            "type": "route",
+            "path": "typography",
+            "label": "Typography"
           }
         ]
       },
