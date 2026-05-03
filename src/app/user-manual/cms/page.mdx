@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Alert from '@/components/Alert';
-import { FileCode, Paperclip, Wrench } from '@phosphor-icons/react/dist/ssr'
+import { FileCode, FileHtml, Paperclip, Wrench } from '@phosphor-icons/react/dist/ssr'
 
 
 # Content Management System
@@ -16,7 +16,92 @@ CMS consists of 3 sub-components. Pages, snippets and resources.
 
 ## Pages
 
-TBA
+Pages allow you to create fully custom pages on your website. Each page is accessible via its URL key.
+
+### Managing pages
+
+Pages are managed from the admin panel. Found under <Wrench /> Settings -> <FileHtml /> Pages.
+
+When creating a page, you must provide:
+
+- **Title**: The name of the page, shown in the browser tab and used for SEO.
+- **URL Key**: The path at which the page will be accessible on your site (e.g. `about` makes the page available at `https://example.org/about`).
+  This can include slashes for nested paths (e.g. `about/team`). Leave blank to make the page your home page.
+- **Type**: The editing mode for this page. This **cannot be changed** after creation.
+  - **Twig**: Write the page content directly as Twig/HTML code.
+  - **Page Builder**: Build the page visually using a drag-and-drop widget interface.
+
+After creation, you can also configure:
+
+- **SEO Description**: A short description of the page used by search engines.
+- **SEO Keywords**: Keywords relevant to the page content, used by search engines.
+- **CSS**: Custom CSS that is loaded only on this page.
+- **JavaScript**: Custom JavaScript that is loaded only on this page.
+
+### Access control
+
+Pages support access control. You can restrict which roles are allowed to view a page using the lock icon on the pages list.
+By default, no roles can view a page, so make sure to configure the access control after creating a page.
+
+### Adding pages to the navigation
+
+To make a page accessible from your site's navigation menu, add it via the <Link href="/user-manual/menu-builder">Menu Builder</Link>.
+When adding a menu item, select the **Page** type and choose the page you want to link to.
+
+### Twig pages
+
+Twig pages give you full control over the page markup. The Twig code you write is the full source of the page.
+You have access to all standard Twig features as well as the CMS Twig functions `snippet()`, `resource()`, and `widget()`.
+
+A typical Twig page extends the forumify frontend layout:
+
+```twig
+{% extends '@Forumify/frontend/page.html.twig' %}
+{% block body %}
+    <h1>Hello World!</h1>
+    {{ snippet('my-intro-snippet') }}
+{% endblock %}
+```
+
+### Page Builder pages
+
+The Page Builder lets you compose a page visually by dragging widgets onto the canvas.
+Widgets are organized into four categories:
+
+#### Layout
+
+Structural widgets used to arrange other widgets.
+
+- **Box**: A styled container box. Useful for visually grouping content.
+- **Card**: A card with a title, body, and footer slot.
+- **Two / Three / Four / Six Column**: A responsive multi-column grid. Each column is a slot that accepts other widgets.
+  You can configure the gap between columns and, when using the responsive option, customize the column widths at different breakpoints.
+
+#### Content
+
+Widgets for displaying content.
+
+- **Rich Text**: A WYSIWYG editor for formatted text.
+- **Button**: A clickable button or link. You can configure the title, URL, visual style (Primary, Outlined, Call To Action, or Link), and whether it opens in a new tab.
+- **Resource**: Displays an uploaded [resource](#resources) (e.g. an image). Select from your existing resources.
+- **YouTube**: Embeds a YouTube video. Requires the video ID from the YouTube URL.
+- **Twig**: A raw Twig/HTML code block for advanced use cases.
+
+#### Forum
+
+Widgets that pull in content from your forum.
+
+- **Topic**: Displays the most recent topic from a selected forum.
+- **Topic List**: Displays a configurable list of topics from a selected forum. You can set the number of topics, sort order, and which meta information to show.
+- **Gallery**: A slideshow of images from an image or mixed-type forum. Supports autoscroll with a configurable interval and optional hidden navigation controls.
+- **Online Users**: Displays a list of users who are currently online.
+
+#### Social
+
+Widgets for embedding social platform components.
+
+- **Discord**: A button that links to your Discord server. Requires your server's ID and a display name.
+- **TeamSpeak**: A button that links to your TeamSpeak server via TSViewer. Requires your TSViewer ID and a display name.
 
 ## Snippets
 
