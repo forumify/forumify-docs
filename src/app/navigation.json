@@ -123,36 +123,9 @@
             ]
           },
           {
-            "type": "collection",
+            "type": "route",
             "path": "typography",
-            "label": "Typography",
-            "children": [
-              {
-                "type": "route",
-                "path": "headings",
-                "label": "Headings"
-              },
-              {
-                "type": "route",
-                "path": "text-sizes",
-                "label": "Text Sizes"
-              },
-              {
-                "type": "route",
-                "path": "text-weights",
-                "label": "Text Weights"
-              },
-              {
-                "type": "route",
-                "path": "text-decorations",
-                "label": "Text Decorations"
-              },
-              {
-                "type": "route",
-                "path": "text-alignment",
-                "label": "Text Alignment"
-              }
-            ]
+            "label": "Typography"
           }
         ]
       },
