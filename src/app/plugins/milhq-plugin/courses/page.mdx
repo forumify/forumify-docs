@@ -1,4 +1,5 @@
 import GuideNavigator from '@/components/GuideNavigator';
+import Alert from '@/components/Alert';
 import { Star } from '@phosphor-icons/react/dist/ssr';
 
 Premium Feature <Star size={16} weight="fill" color="#FFD700" />
@@ -6,7 +7,7 @@ Premium Feature <Star size={16} weight="fill" color="#FFD700" />
 # Courses
 
 Courses allow you to create trainings and courses, track attendance of instructors and students, and automatically
-create qualification and service records based on their performance. This feature requires MILHQ Premium.
+create service, qualification, and award records based on their performance. This feature requires MILHQ Premium.
 
 ## How to create a new course
 
@@ -19,7 +20,12 @@ Head over to Courses (Admin Panel > MILHQ > Courses) and create a new course.
 - **Image**: Image that represents the course.
 - **Minimum Rank**: You can restrict what ranks can take part in the course. All ranks equal or above will be eligible.
 - **Prerequisites**: Restrict who can attend by setting qualification prerequisites.
-- **Qualifications**: Set what qualifications can be awarded from completing this course.
+- **Qualifications**: Set what qualifications can be achieved by completing this course.
+- **Awards**: Set what awards can be granted by completing this course.
+
+Only qualifications and awards selected here can be granted from this course's class reports. See
+[Qualifications](/plugins/milhq-plugin/qualifications) and [Awards](/plugins/milhq-plugin/awards) for more
+information, including how tiers work.
 
 ### How to create a course instructor role
 
@@ -28,6 +34,10 @@ created a course, edit it, click on the instructors tab, then click on the + but
 
 ![Course Instructors](/user-manual/plugins/milhq-plugin/course-instructors.png)
 
+<Alert severity="info">
+Instructor roles are optional. If a course has none configured, the Role column is simply left out of that course's
+class reports.
+</Alert>
 
 # Classes
 
@@ -55,23 +65,42 @@ has RSVP'ed.
 
 ![Class Page](/user-manual/plugins/milhq-plugin/class-page.png)
 
+Once a class report has been submitted, the class page also shows, per student, which qualifications and awards they
+earned (including the tier, if any). Any notes left on a student in the report are only visible to soldiers with
+permission to manage the course's classes, not to the wider unit.
+
 ## How to submit a class report
 
-A Class Report lets you submit a report for individual soldiers, as well as awarding the qualification for the course.
+A Class Report lets you submit a report for individual instructors and students, and automatically grants service
+records, as well as any qualifications and awards earned during the class.
 
 ![Class Report](/user-manual/plugins/milhq-plugin/class-report.png)
 
 **Instructors**
 - **Present**: Tick if the RSVP'ed instructor was present.
-- **Role**: If you created instructor roles, this is where you can select the individual instructor's role.
+- **Role**: If the course has instructor roles, this is where you can select the individual instructor's role. This
+column is left out entirely for courses that don't have any instructor roles configured.
 - **Add Instructor**: If an instructor joined but had not RSVP'ed, you can still add them to the class report.
 
 **Students**
-- **Result**: This is the individual student's class result.
-- **Qualifications**: You can award qualifications to the individual student.
-- **Service Record Text Override**: You can override the service record text.
+- **Result**: The individual student's class result — Excused, Failed, No Show, or Passed.
+- **Qualifications/Awards**: One column per qualification and award configured on the course (see
+[How to create a new course](#how-to-create-a-new-course) above). These only apply once **Result** is set to
+Passed. Untiered qualifications and auto-advance awards show a checkbox; tiered qualifications and non-auto-advance
+tiered awards show a dropdown to select which tier was earned.
+- **Details**: Click the chevron button to expand a row and reveal:
+  - **Service Record Text Override**: Override the default "Graduated &lt;Class Title&gt;" text shown on the
+soldier's service record.
+  - **Notes**: Free-form rich text notes about the student, only ever visible to soldiers who can manage the
+course's classes.
 - **Add Student**: If a spot opens up mid-game and is taken by a student who didn't RSVP, then you can still add them
 to the class report.
+
+<Alert severity="warning">
+Service, qualification, and award records are only created the first time a class report is submitted. Editing a
+report afterwards updates what's shown on the class page, but it will not create, update, or remove any records —
+re-submitting is not a way to correct records after the fact.
+</Alert>
 
 <GuideNavigator
     previous={{ href: '/plugins/milhq-plugin/combat-records', label: 'Combat Records' }}
