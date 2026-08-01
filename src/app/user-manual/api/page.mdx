@@ -1,0 +1,54 @@
+import Link from 'next/link';
+import Alert from '@/components/Alert';
+import { HardDrives, Wrench } from '@phosphor-icons/react/dist/ssr';
+
+# API
+
+forumify has a REST API that lets other applications read and write the data on your website: a Discord bot, a game
+server, a sync script, or a dynamic section on one of your <Link href="/user-manual/cms">CMS pages</Link>.
+
+Everything you can do through the API is described in detail in the
+<Link href="/guides/api">API developer guide</Link>, including code samples in JavaScript, PHP and Python.
+This page covers the part that happens in the admin panel.
+
+## Your API documentation
+
+Every forumify installation generates its own interactive API documentation, listing every endpoint that is available
+on your website, including the ones added by plugins. You can find it at:
+
+```
+https://your.forumify.website/api
+```
+
+## Api Clients
+
+To let an external application use the API, create an API client. Api clients are managed in the
+<Link href="/user-manual/admin-panel">Admin Panel</Link> under <Wrench /> Settings -> <HardDrives /> Api Clients.
+
+When creating a client, you provide:
+
+- **Name**: A recognizable name for the integration, for example "Discord Bot".
+- **Roles**: The roles this client acts with.
+
+After saving, the client is given a **Client ID** and a **Client Secret**. These are the credentials the external
+application uses to log in to the API. You can view and change them by editing the client, which is also how you rotate
+the secret if it ever leaks.
+
+<Alert severity="warning">
+    Treat the client secret like a password. Never share it publicly, and never put it in the JavaScript or Twig of a
+    CMS page, where every visitor could read it.
+</Alert>
+
+## Security
+
+An API client is not a way around your website's security. The roles you assign to a client determine exactly what it
+can do, in the same way roles determine what a user can do. All permissions and
+<Link href="/user-manual/security">access control lists</Link> apply: a client that is not allowed to see a forum will
+not see that forum through the API either.
+
+The same is true for the API calls made from CMS pages. Those requests run as the visitor that is looking at the page,
+using their normal login session, and return only what that visitor is allowed to see. Guests cannot use the API at
+all.
+
+For this reason, it is best to give each integration its own client with only the roles it actually needs, rather than
+one client with an administrator role that is shared by everything.

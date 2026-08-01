@@ -1,0 +1,415 @@
+import Link from 'next/link';
+import Alert from '@/components/Alert';
+import { HardDrives, Wrench } from '@phosphor-icons/react/dist/ssr';
+
+# API
+
+forumify ships with a REST API built on [API Platform](https://api-platform.com/). Every resource is exposed under the
+`/api` prefix of your website, and plugins can add their own resources to the same API.
+
+The API is used in two ways:
+
+- **From outside your website**, by creating an **API client** in the admin panel and authenticating with the
+  OAuth 2.0 client credentials grant.
+- **From inside your website**, by calling the API with `fetch` from the JavaScript of a
+  <Link href="/user-manual/cms">CMS page</Link>. These requests use the visitor's normal session cookie.
+
+<Alert severity="info">
+    There is no such thing as an anonymous API request. Every endpoint requires authentication, and every endpoint
+    applies the exact same permission and ACL checks as the rest of the website.
+</Alert>
+
+## Your API documentation
+
+forumify does not publish a single, universal API reference, because the available endpoints depend on the version you
+are running and the plugins you have installed.
+
+Instead, every installation generates its own interactive documentation. Open it in your browser at:
+
+```
+https://your.forumify.website/api
+```
+
+This page lists every resource, every operation, all query parameters, and the request and response schemas for your
+site specifically. It is the authoritative reference — use it alongside this guide.
+
+## Requests and responses
+
+All endpoints live under `/api`, for example `/api/forums`, `/api/forums/topics` and `/api/forums/badges`.
+
+The API speaks **JSON-LD**. You can request either `application/ld+json` or `application/json`; both return the same
+JSON-LD documents. For write operations, set the `Content-Type` of your request to:
+
+- `POST`: `application/ld+json` or `application/json`.
+- `PATCH`: `application/merge-patch+json` or `application/json`.
+- `DELETE` has no request body.
+
+A single resource looks roughly like this:
+
+```json
+{
+  "@context": "/api/contexts/Badge",
+  "@id": "/api/forums/badges/3",
+  "@type": "Badge",
+  "id": 3,
+  "name": "Founder",
+  "description": "One of the first members of our community.",
+  "image": "/uploads/assets/68a1f0c3e1b47-founder.png",
+  "createdAt": "2026-01-14T09:12:44+00:00",
+  "updatedAt": "2026-01-14T09:12:44+00:00"
+}
+```
+
+Which fields are returned depends entirely on the resource. On top of the resource's own fields, forumify automatically
+adds the common entity fields when they exist: `id`, `position`, `parent`, `createdAt`, `updatedAt`, `createdBy` and
+`updatedBy`. Dates are formatted as ISO 8601, and references to other resources (such as `createdBy` or `parent`) are
+returned as IRIs, for example `/api/users/12`.
+
+### Collections and pagination
+
+Collection endpoints return a JSON-LD collection. The items are in `member` and the total count is in `totalItems`:
+
+```json
+{
+  "@context": "/api/contexts/Forum",
+  "@id": "/api/forums",
+  "@type": "Collection",
+  "totalItems": 34,
+  "member": [
+    { "@id": "/api/forums/1", "@type": "Forum", "id": 1, "title": "Announcements" }
+  ],
+  "view": {
+    "@id": "/api/forums?_page=1",
+    "@type": "PartialCollectionView"
+  }
+}
+```
+
+Collections are always paginated:
+
+- `_page`: the page to fetch, starting at `1`.
+- `_limit`: the number of items per page. Defaults to `25`, with a maximum of `1000`.
+
+## Method 1: API clients
+
+Use an API client when something outside your website needs to talk to it: a Discord bot, a game server, a sync script,
+a dashboard,...
+
+### Creating an API client
+
+API clients are managed in the <Link href="/user-manual/admin-panel">Admin Panel</Link> under
+<Wrench /> Settings -> <HardDrives /> Api Clients.
+
+When creating a client you provide:
+
+- **Name**: A recognizable name for the integration, for example "Discord Bot".
+- **Roles**: The roles this client acts with. This is what decides everything the client is allowed to do.
+
+After saving, the client is given a **Client ID** (derived from the name) and a randomly generated **Client Secret**.
+Both are shown when you edit the client, and both can be changed there if you ever need to rotate them.
+
+<Alert severity="warning">
+    The client secret is a password. Store it in an environment variable or secret store, never in a public repository
+    and never in the JavaScript or Twig of a CMS page, where every visitor could read it.
+</Alert>
+
+### Requesting an access token
+
+forumify uses the standard **OAuth 2.0 client credentials grant**
+([RFC 6749, section 4.4](https://datatracker.ietf.org/doc/html/rfc6749#section-4.4)) to turn an API client's
+credentials into an access token. Any OAuth 2.0 client library that supports the client credentials flow will work,
+which is why the token endpoint and its responses look exactly like you would expect from any other OAuth 2.0 provider.
+
+Exchange the client credentials for an access token at the token endpoint:
+
+```
+POST https://your.forumify.website/oauth/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials&client_id=your-client-id&client_secret=your-client-secret
+```
+
+The body must be form encoded. As an alternative to sending `client_id` and `client_secret` in the body, you may pass
+them as HTTP Basic credentials in the `Authorization` header.
+
+A successful request returns:
+
+```json
+{
+  "token_type": "bearer",
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "expires_in": 3600
+}
+```
+
+The access token is valid for **one hour**. There is no refresh token: when the token expires, simply request a new one
+with the same client credentials.
+
+If something is wrong you get a `400` response describing the problem, for example an `invalid_client` error when the
+client id and secret do not match a client, or an `unsupported_grant_type` error when `grant_type` is not
+`client_credentials`.
+
+### Calling the API
+
+Send the token as a bearer token on every API request:
+
+```
+GET https://your.forumify.website/api/forums
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
+Accept: application/ld+json
+```
+
+### JavaScript
+
+```javascript
+const BASE_URL = 'https://your.forumify.website';
+
+async function getAccessToken() {
+    const response = await fetch(`${BASE_URL}/oauth/token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+            grant_type: 'client_credentials',
+            client_id: process.env.FORUMIFY_CLIENT_ID,
+            client_secret: process.env.FORUMIFY_CLIENT_SECRET,
+        }),
+    });
+
+    if (!response.ok) {
+        throw new Error(`Unable to get an access token: ${response.status}`);
+    }
+
+    const { access_token } = await response.json();
+    return access_token;
+}
+
+const token = await getAccessToken();
+
+const response = await fetch(`${BASE_URL}/api/forums?_limit=10`, {
+    headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/ld+json',
+    },
+});
+
+const { member, totalItems } = await response.json();
+console.log(`Showing ${member.length} of ${totalItems} forums`);
+member.forEach((forum) => console.log(forum.title));
+```
+
+### PHP
+
+```php
+<?php
+
+const BASE_URL = 'https://your.forumify.website';
+
+function request(string $url, array $options = []): array
+{
+    $ch = curl_init($url);
+    curl_setopt_array($ch, $options + [CURLOPT_RETURNTRANSFER => true]);
+
+    $body = curl_exec($ch);
+    $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($status >= 400) {
+        throw new RuntimeException("Request to $url failed ($status): $body");
+    }
+
+    return json_decode($body, true, flags: JSON_THROW_ON_ERROR);
+}
+
+$token = request(BASE_URL . '/oauth/token', [
+    CURLOPT_POST => true,
+    CURLOPT_POSTFIELDS => http_build_query([
+        'grant_type' => 'client_credentials',
+        'client_id' => getenv('FORUMIFY_CLIENT_ID'),
+        'client_secret' => getenv('FORUMIFY_CLIENT_SECRET'),
+    ]),
+])['access_token'];
+
+$forums = request(BASE_URL . '/api/forums?_limit=10', [
+    CURLOPT_HTTPHEADER => [
+        "Authorization: Bearer $token",
+        'Accept: application/ld+json',
+    ],
+]);
+
+echo "Showing {$forums['totalItems']} forums\n";
+foreach ($forums['member'] as $forum) {
+    echo $forum['title'], "\n";
+}
+```
+
+### Python
+
+```python
+import os
+import requests
+
+BASE_URL = 'https://your.forumify.website'
+
+
+def get_access_token() -> str:
+    response = requests.post(f'{BASE_URL}/oauth/token', data={
+        'grant_type': 'client_credentials',
+        'client_id': os.environ['FORUMIFY_CLIENT_ID'],
+        'client_secret': os.environ['FORUMIFY_CLIENT_SECRET'],
+    })
+    response.raise_for_status()
+
+    return response.json()['access_token']
+
+
+token = get_access_token()
+
+response = requests.get(f'{BASE_URL}/api/forums', params={'_limit': 10}, headers={
+    'Authorization': f'Bearer {token}',
+    'Accept': 'application/ld+json',
+})
+response.raise_for_status()
+
+forums = response.json()
+print(f"Showing {forums['totalItems']} forums")
+for forum in forums['member']:
+    print(forum['title'])
+```
+
+## Method 2: CMS pages
+
+Because the API lives on your own domain, JavaScript running on your website can call it directly. There is no token to
+manage: the browser sends the visitor's session cookie along with the request, and the API runs as that logged in user.
+
+This makes the API a convenient way to add dynamic content to a <Link href="/user-manual/cms">CMS page</Link>: put the
+markup in the page body, and the `fetch` call in the page's **JavaScript** field.
+
+The page body (a Twig page, or a Twig widget on a Page Builder page):
+
+```twig
+<h2>Latest topics</h2>
+<ul id="latest-topics"></ul>
+```
+
+The page's JavaScript:
+
+```javascript
+document.addEventListener('DOMContentLoaded', async () => {
+    const list = document.getElementById('latest-topics');
+
+    const response = await fetch('/api/forums/topics?_limit=5', {
+        headers: { Accept: 'application/ld+json' },
+    });
+
+    if (response.status === 401) {
+        // Not logged in. The API is never available to guests.
+        list.innerHTML = '<li>Log in to see the latest topics.</li>';
+        return;
+    }
+
+    if (!response.ok) {
+        return;
+    }
+
+    const { member } = await response.json();
+    list.innerHTML = member
+        .map((topic) => `<li>${topic.title}</li>`)
+        .join('');
+});
+```
+
+Because these requests are same origin, the session cookie is included automatically and no extra configuration is
+needed. A few things to keep in mind:
+
+- **Guests get a `401`.** Anyone who is not logged in cannot use the API at all, so always handle that case, or hide
+  the dynamic section from guests.
+- **Every visitor sees their own data.** The response is filtered for the logged in user, so two visitors on the same
+  page can legitimately receive different results.
+- **Never put an API client secret in a CMS page.** Page JavaScript is public. If you need higher privileges than the
+  visitor has, that work belongs on a server, using an API client.
+
+## Permissions and ACLs
+
+Whichever method you use, the API is subject to the same <Link href="/user-manual/security">security</Link> rules as
+the rest of forumify. Nothing is bypassed for API calls.
+
+- **Authentication is always required.** Requests without a session or a valid bearer token get a `401` response with
+  the body `{"error": "Full authentication is required to access the API."}`. An expired or invalid access token is
+  rejected in exactly the same way.
+- **Role permissions are checked per operation.** Administrative resources require the matching admin permission. As an
+  example, listing badges requires the "view badges" permission and creating one requires the "manage badges"
+  permission. Without it, the API responds with `403`.
+- **ACLs are applied per entity.** For resources protected by an ACL, such as forums, topics and comments, item
+  operations return a `403` response with the body `{"error": "Operation not allowed."}` when access is denied, and
+  collection endpoints simply leave out the entities you are not allowed to see. A client that can only view two forums
+  gets exactly those two forums back from `/api/forums`.
+- **Super Admin bypasses everything**, exactly like it does on the website.
+
+For an API client, all of this is resolved from the roles you assigned to the client in the admin panel. For CMS page
+requests, it is resolved from the roles of the logged in user.
+
+<Alert severity="warning">
+    Give your API clients the smallest set of roles that gets the job done. A client with an administrator role can do
+    everything an administrator can do, and its credentials live in a script somewhere outside your website.
+</Alert>
+
+## Uploading assets
+
+Some resources have an image or file attached to them, for example the image of a badge or reaction, or a user's
+avatar. There is no separate upload endpoint: you send the file **base64 encoded**, inline, together with the rest of
+the resource.
+
+These resources expose an extra write-only property for this, next to the read-only property that contains the URL of
+the current file. For example, a badge is read with `image` and written with `newImage`. Check your
+[API documentation](#your-api-documentation) for the exact property names of a resource.
+
+The value of the property is an object with two keys:
+
+- **`data`** (required): The raw file contents, base64 encoded. This is the bare base64 string, without a
+  `data:image/png;base64,` prefix. If you encode the file in a browser with `FileReader.readAsDataURL()`, remember to
+  strip everything up to and including the comma.
+- **`filename`** (optional): The original file name. It is used to give the stored file a recognizable name, and as a
+  fallback to determine the file type.
+
+The file type is detected from the contents of the file itself. If forumify cannot determine the type, and no
+`filename` with an extension was provided, the request fails, so it is good practice to always send a `filename`.
+
+A request to create a badge with an image:
+
+```
+POST https://your.forumify.website/api/forums/badges
+Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
+Content-Type: application/json
+```
+
+```json
+{
+  "name": "Founder",
+  "description": "One of the first members of our community.",
+  "newImage": {
+    "filename": "founder.png",
+    "data": "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAA..."
+  }
+}
+```
+
+forumify stores the file and fills in the `image` property, so you never send `image` yourself. The response contains
+the URL of the stored file:
+
+```json
+{
+  "@id": "/api/forums/badges/3",
+  "@type": "Badge",
+  "id": 3,
+  "name": "Founder",
+  "description": "One of the first members of our community.",
+  "image": "/uploads/assets/68a1f0c3e1b47-founder.png"
+}
+```
+
+To replace the file later, send the same property again in a `PATCH` request.
+
+<Alert severity="info">
+    Base64 encoding grows the payload by roughly a third, and the whole request is held in memory. It is fine for
+    avatars, badges and icons, but it is not meant for very large files.
+</Alert>

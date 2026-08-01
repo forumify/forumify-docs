@@ -53,6 +53,11 @@
         "type": "route",
         "path": "reactions",
         "label": "Reactions"
+      },
+      {
+        "type": "route",
+        "path": "api",
+        "label": "API"
       }
     ]
   },
@@ -170,6 +175,11 @@
             "label": "Security"
           }
         ]
+      },
+      {
+        "type": "route",
+        "path": "api",
+        "label": "API"
       },
       {
         "type": "route",
