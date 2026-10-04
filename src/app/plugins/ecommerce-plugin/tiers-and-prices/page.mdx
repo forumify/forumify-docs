@@ -1,0 +1,258 @@
+import GuideNavigator from '@/components/GuideNavigator';
+import Alert from '@/components/Alert';
+
+# Tiers &amp; Prices
+
+Prices do not sit on a product directly. A product has **tiers**, and each tier has one or more **prices**.
+
+```
+Product  "Supporter"
+  ├─ Tier  "Bronze"  ─┬─ Price  €3 / month
+  │                   └─ Price  €30 / year
+  └─ Tier  "Gold"    ─┬─ Price  €10 / month
+                      └─ Price  €100 / year
+```
+
+- A **tier** is a variant of the product: Bronze and Gold, Free and Premium, Small and Large.
+- A **price** is one way to pay for that tier: monthly, yearly, or once.
+
+Customers pick a tier first, then how they want to be billed. A product with a single tier hides that step
+entirely — the buy button goes straight to checkout.
+
+# Tiers
+
+Open a product and go to the **Tiers** tab, then click **+**.
+
+![Product tiers](/user-manual/plugins/ecommerce-plugin/product-tiers.png)
+
+<table>
+    <thead>
+        <tr>
+            <th>Field</th>
+            <th>What it does</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Label</strong></td>
+            <td>What customers see: "Bronze", "Premium", "Large"</td>
+        </tr>
+        <tr>
+            <td><strong>Key</strong></td>
+            <td>A stable identifier: <code>bronze</code>, <code>premium</code>, <code>large</code>. Unique within the product, locked once sold</td>
+        </tr>
+        <tr>
+            <td><strong>Description</strong></td>
+            <td>What the tier includes. A bulleted list becomes a feature list with check marks</td>
+        </tr>
+        <tr>
+            <td><strong>Recommended</strong></td>
+            <td>Highlights this tier in the comparison</td>
+        </tr>
+        <tr>
+            <td><strong>Price</strong></td>
+            <td>The tier's first price. Every tier needs one</td>
+        </tr>
+    </tbody>
+</table>
+
+Tiers are shown in the order of the list, left to right. Drag them to reorder. This is what they look like
+to a customer:
+
+![The tier comparison on a product page](/user-manual/plugins/ecommerce-plugin/tier-comparison.png)
+
+<Alert severity="info">
+    <strong>"Recommended" is the one you want people to pick.</strong> It draws a badge and visual emphasis
+    onto that tier in the comparison. Use it on at most one tier per product, or it stops meaning anything.
+</Alert>
+
+## A single-tier product
+
+If you are just selling one thing at one price — a hoodie, a donation, a plugin license — create one tier
+and give it the same label as the product. The storefront notices and puts the buy box straight in the page
+header.
+
+## Free tiers
+
+A free tier is a tier with a price of **0**, not a tier without prices. It goes through the whole checkout
+(so you still get an order, and the customer still gets their roles and their confirmation), it just never
+touches your payment provider.
+
+# Prices
+
+Open a tier and go to its **Prices** tab.
+
+![Tier prices](/user-manual/plugins/ecommerce-plugin/tier-prices.png)
+
+<table>
+    <thead>
+        <tr>
+            <th>Field</th>
+            <th>What it does</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Amount</strong></td>
+            <td>In your store currency. <code>0</code> makes it free</td>
+        </tr>
+        <tr>
+            <td><strong>Type</strong></td>
+            <td><strong>One-time</strong> (paid once) or <strong>Recurring</strong> (a subscription)</td>
+        </tr>
+        <tr>
+            <td><strong>Bill every</strong> + <strong>Billing interval</strong></td>
+            <td>For recurring prices: every 1 month, every 3 months, every 1 year…</td>
+        </tr>
+        <tr>
+            <td><strong>Active</strong></td>
+            <td>Only active prices are offered in the store</td>
+        </tr>
+    </tbody>
+</table>
+
+Prices show in the order of the list — drag to reorder. Customers see them as billing options on the tier
+card, with the first one selected.
+
+## One-time and recurring
+
+A **one-time** price is a single payment. The customer buys it, you deliver it, done.
+
+A **recurring** price creates a [subscription](/plugins/ecommerce-plugin/subscriptions). The payment provider
+charges the customer every interval and the store records each charge as a new order.
+
+A **free** price is always one-time. There is nothing to renew and no provider to cancel it with, so the
+type and interval fields disappear when you set the amount to 0.
+
+## Offering monthly and yearly
+
+The usual setup: one tier, two prices.
+
+1. Create the tier with its monthly price — say €5 per month.
+2. On the tier's Prices tab, add a second price: €50 per year.
+
+Customers now see a "Billing" choice on the tier card, and the big price on the card follows whichever
+option they pick.
+
+## Deactivating a price
+
+Untick **Active** to stop offering a price without deleting it. It vanishes from the store, and existing
+subscriptions on it keep renewing exactly as before.
+
+That is how you retire an option — the old yearly deal, say — without disturbing anyone who is on it.
+
+# Locked prices
+
+Once a price has been **ordered even once**, it is locked. You cannot change its amount, currency, type or
+interval any more, and you cannot delete it. The fields show up disabled in the form.
+
+This is deliberate, and every serious payment system works this way: an order points at the price it was
+bought at, so if the price could be edited, your order history and your customers' invoices would quietly
+change to say something that never happened.
+
+What you **can** still do with a locked price:
+
+- Activate or deactivate it.
+- Replace it, with **Change price**.
+
+<Alert severity="info">
+    A tier with a locked price cannot be deleted either, and its key can no longer be changed. Locking is
+    what keeps sold history honest.
+</Alert>
+
+## Changing a price
+
+To raise or lower a locked price, use the **Change price** action on the price row.
+
+![Change price](/user-manual/plugins/ecommerce-plugin/price-change.png)
+
+What happens when you save:
+
+1. A **new price** is created in the same tier, with the amount you entered.
+2. The **old price is deactivated** and marked as replaced.
+3. The store offers the new price from that moment on.
+4. Every existing order keeps pointing at what it was actually sold at.
+
+**Existing subscribers stay on the old price.** They are grandfathered — their subscription keeps billing at
+the amount they signed up for, and they are not moved or notified. If you want subscribers to move to the
+new amount, you currently have to ask them to cancel and resubscribe.
+
+<Alert severity="warning">
+    Because subscribers are grandfathered, a price change is not a price rise for everyone. Plan your prices
+    with that in mind: many subscriptions in the wild are the surviving evidence of every price you ever
+    offered.
+</Alert>
+
+# Deleting
+
+<table>
+    <thead>
+        <tr>
+            <th>You are deleting</th>
+            <th>Allowed?</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>A price that was never ordered</td>
+            <td>Yes, unless it is the tier's last price</td>
+        </tr>
+        <tr>
+            <td>A price that was ordered</td>
+            <td>No. Deactivate it, or use Change price</td>
+        </tr>
+        <tr>
+            <td>A tier's last price</td>
+            <td>No. A tier always has at least one price — delete the tier instead</td>
+        </tr>
+        <tr>
+            <td>A tier with prices that were ordered</td>
+            <td>No</td>
+        </tr>
+        <tr>
+            <td>A product that was ordered</td>
+            <td>No. Archive it instead</td>
+        </tr>
+    </tbody>
+</table>
+
+Everything that refuses to be deleted can be **deactivated or archived**, which gets the same result for your
+customers while keeping your records intact.
+
+# Price statuses at a glance
+
+On the prices list, each price shows its state. A price can carry more than one at once:
+
+![Price statuses](/user-manual/plugins/ecommerce-plugin/price-statuses.png)
+
+<table>
+    <thead>
+        <tr>
+            <th>Status</th>
+            <th>Meaning</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Active</strong></td>
+            <td>Offered in the store</td>
+        </tr>
+        <tr>
+            <td><strong>Inactive</strong></td>
+            <td>Not offered. Existing subscriptions on it keep running</td>
+        </tr>
+        <tr>
+            <td><strong>Locked</strong></td>
+            <td>Has been ordered, so its amount can no longer be edited</td>
+        </tr>
+        <tr>
+            <td><strong>Replaced</strong></td>
+            <td>Was replaced by a newer price through Change price</td>
+        </tr>
+    </tbody>
+</table>
+
+<GuideNavigator
+    previous={{ href: '/plugins/ecommerce-plugin/products', label: 'Products' }}
+    next={{ href: '/plugins/ecommerce-plugin/fulfillment', label: 'Fulfillment' }}
+/>

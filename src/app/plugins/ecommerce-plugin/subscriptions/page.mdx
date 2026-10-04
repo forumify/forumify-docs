@@ -1,0 +1,204 @@
+import GuideNavigator from '@/components/GuideNavigator';
+import Alert from '@/components/Alert';
+
+# Subscriptions
+
+A recurring price creates a subscription. Your payment provider charges the customer every interval, and the
+store mirrors what the provider reports: a renewal, a failed payment, a cancellation.
+
+Each renewal is recorded as a new **order**, so a subscription's payment history is just its list of orders.
+
+# The lifecycle
+
+```
+Active ⇄ Past due
+   │        │
+   └──> Cancelled ──> Ended
+```
+
+<table>
+    <thead>
+        <tr>
+            <th>Status</th>
+            <th>Meaning</th>
+            <th>Does the customer still have access?</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Active</strong></td>
+            <td>Paid up and renewing</td>
+            <td>Yes</td>
+        </tr>
+        <tr>
+            <td><strong>Past due</strong></td>
+            <td>A payment failed. The provider is retrying</td>
+            <td>Yes, for now</td>
+        </tr>
+        <tr>
+            <td><strong>Cancelled</strong></td>
+            <td>Will not renew again, but the paid period is still running</td>
+            <td>Yes, until the period ends</td>
+        </tr>
+        <tr>
+            <td><strong>Ended</strong></td>
+            <td>Over. Roles and badges have been revoked</td>
+            <td>No</td>
+        </tr>
+    </tbody>
+</table>
+
+**Ended is final.** Nothing brings an ended subscription back — a customer who wants to return subscribes
+again, which is a new subscription.
+
+<Alert severity="info">
+    <strong>Cancelled does not mean gone.</strong> A customer who cancels on day 2 of a monthly subscription
+    keeps their access for the remaining 28 days, because they paid for them. The subscription ends when the
+    period runs out.
+</Alert>
+
+# Renewals
+
+Shortly before each period ends, the provider charges the customer's saved payment method. The store creates
+a **pending renewal order**, and completes it when the payment succeeds. The subscription's period end moves
+forward only when the money actually arrives, so "renews on" is always a date that has been paid for.
+
+Renewals are quiet by design: **your customers get no email from the store for a successful renewal**. Their
+payment provider already sends them a receipt, and monthly "thanks for paying again" mail is how a
+subscription ends up cancelled.
+
+Renewals of a manually fulfilled product are the exception — see
+[Fulfillment](/plugins/ecommerce-plugin/fulfillment#subscriptions-and-fulfillment).
+
+# When a payment fails
+
+This is the most common thing that happens to a subscription: the card expired.
+
+1. The provider tries to charge and fails. The subscription moves to **Past due**.
+2. The customer is emailed, told what happened and given the date their access ends.
+3. The provider keeps retrying on its own schedule.
+4. If a retry succeeds, the subscription is **Active** again as if nothing had happened.
+5. If nothing is paid by the end of the grace period, the subscription is **cancelled and ended**
+   automatically, and roles and badges are revoked.
+
+## The grace period
+
+Access is kept until **whichever comes first**:
+
+- the end of the period they did not pay for, or
+- **30 days** after the first failed payment.
+
+So a monthly subscriber whose payment fails has up to a month; a yearly subscriber has 30 days, not another
+year. The exact date is shown on the customer's subscription page and stated in the email they receive.
+
+<Alert severity="warning">
+    This sweep runs on your site's <strong>scheduler</strong>. If background workers are not running, past
+    due subscriptions are never ended and customers keep their roles indefinitely. See
+    <a href="/plugins/ecommerce-plugin/store-settings#background-workers">Background workers</a>.
+</Alert>
+
+# The subscription list
+
+**Admin Panel → Ecommerce → Subscriptions**
+
+![Subscription list](/user-manual/plugins/ecommerce-plugin/subscription-list.png)
+
+Filter by status. The one to watch is **Past due** — those are customers about to lose access who probably
+just need to update a card.
+
+The subscription page shows the customer, the product and tier, the price, when it started, when the current
+period ends, and **all of its orders** below: the initial purchase and every renewal.
+
+# Cancelling a subscription
+
+## As an admin
+
+On the subscription page, use **Actions → Cancel subscription**.
+
+![Cancel a subscription](/user-manual/plugins/ecommerce-plugin/subscription-cancel.png)
+
+You choose when it ends:
+
+- **At the end of the current period** — the customer keeps access until the period they paid for runs out,
+  and is not charged again. This is the kind thing to do for someone who asked to stop.
+- **Right away** — the customer loses access immediately. Use this when something has gone wrong.
+
+Neither option refunds anything on its own. If you also want to send the last payment back, tick **Also
+refund the last payment** on the same screen — that is the fix for someone who subscribed to the wrong tier.
+A refund always ends the subscription right away, even when you picked the end of the period.
+
+The provider is told immediately, so the change takes effect at once rather than waiting for a webhook.
+
+## As a customer
+
+From their subscription page under **My purchases**, customers can cancel themselves. They can only cancel
+**at the end of the period** — they paid for it, they keep it, and no money goes back. The page spells that
+out before they confirm.
+
+If the product is fulfilled manually, their card then reads "Cancellation requested. An admin is finishing
+it." until someone marks it handled. See
+[Fulfillment](/plugins/ecommerce-plugin/fulfillment#cancellations-that-need-you).
+
+## Cancelling in the provider's dashboard
+
+You can, and the store will follow along when the provider reports it. But you lose the extras — the
+cancellation request, the option to refund in the same action — so the admin panel is the better door.
+
+# What customers see
+
+**My purchases** shows each subscription as a card:
+
+<table>
+    <thead>
+        <tr>
+            <th>Status</th>
+            <th>The card says</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Active</strong></td>
+            <td>"Renews on 12 March 2026"</td>
+        </tr>
+        <tr>
+            <td><strong>Past due</strong></td>
+            <td>"Your last payment failed. Access ends on 3 March 2026 unless the payment goes through." with a button to fix it</td>
+        </tr>
+        <tr>
+            <td><strong>Cancelled</strong></td>
+            <td>"Ends on 12 March 2026"</td>
+        </tr>
+        <tr>
+            <td><strong>Ended</strong></td>
+            <td>"Ended on 12 March 2026"</td>
+        </tr>
+    </tbody>
+</table>
+
+Opening a card leads to the subscription's own page: the plan, every payment it has produced, an invoice
+link for each, and the cancel button.
+
+![A customer's subscription page](/user-manual/plugins/ecommerce-plugin/my-subscription.png)
+
+A past-due subscription gets an **Update payment method** button that takes the customer to the provider's
+own payment page, where they can pay the failed invoice and replace their card in one go. That is almost
+always the whole fix, and it needs nothing from you.
+
+<Alert severity="info">
+    When a member asks about their billing, the fastest answer is usually "open <strong>My purchases</strong>
+    from the top of the store". Everything is there: invoices, the next billing date, the cancel button, and
+    the way to fix a failed payment.
+</Alert>
+
+# Changing what a subscriber pays
+
+Existing subscribers are **grandfathered** onto the price they signed up at. Changing a price creates a new
+one for new customers and leaves current subscribers where they are.
+
+To move someone to a different amount or a different tier, ask them to cancel and subscribe again. See
+[Changing a price](/plugins/ecommerce-plugin/tiers-and-prices#changing-a-price).
+
+<GuideNavigator
+    previous={{ href: '/plugins/ecommerce-plugin/orders', label: 'Orders' }}
+    next={{ href: '/plugins/ecommerce-plugin/refunds', label: 'Refunds' }}
+/>

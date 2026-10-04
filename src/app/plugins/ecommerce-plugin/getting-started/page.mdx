@@ -1,0 +1,120 @@
+import GuideNavigator from '@/components/GuideNavigator';
+import Alert from '@/components/Alert';
+
+# Getting Started
+
+This chapter takes you from a fresh install to a working store in the order that actually works. Each step
+links to the chapter that covers it in full, so skim here and dig in where you need to.
+
+# 1. Set your currency
+
+Go to **Admin Panel → Ecommerce → Configuration** and pick your store currency.
+
+Do this before you create anything. Every price you create is stamped with the currency it was made in, and
+that stamp never changes — so switching currency later leaves your existing prices behind on the old one.
+
+[Store Settings →](/plugins/ecommerce-plugin/store-settings)
+
+# 2. Connect a payment provider
+
+Go to **Admin Panel → Ecommerce → Payment providers**, open **Stripe**, and fill in:
+
+1. Your **secret key** from the Stripe dashboard.
+2. A **webhook endpoint** in Stripe pointing at the URL shown on that page, subscribed to all **checkout**,
+   **invoice**, **customer** and **charge** events.
+3. The webhook's **signing secret**.
+
+Then tick **Enabled** and save.
+
+<Alert severity="warning">
+    Without a working webhook your store will take payments but never notice that they succeeded. Orders
+    stay stuck on "Pending" and subscriptions never renew. Test this before you announce your store.
+</Alert>
+
+Start with Stripe's **test mode** keys. Test-mode data is kept completely separate, so you can place real
+end-to-end orders, then switch to live keys when you are happy.
+
+[Payment Providers →](/plugins/ecommerce-plugin/payment-providers)
+
+# 3. Create a category
+
+Go to **Ecommerce → Categories** and add one, for example "Supporter" or "Merch". Categories give customers
+a filter on the storefront. You can skip this if you are only selling one or two things.
+
+# 4. Create your first product
+
+Go to **Ecommerce → Products → Create**. The essentials:
+
+- **Title** — what you are selling.
+- **Key** — a stable identifier like `supporter` or `acme/hoodie`. It locks once the product is sold, so
+  pick something you can live with.
+- **Status** — leave it on **Draft** while you build it out.
+- **Fulfillment** — how customers get it. Start with **Delivered instantly** if the purchase only needs to
+  grant a role, and read the [Fulfillment](/plugins/ecommerce-plugin/fulfillment) chapter for anything you
+  hand over yourself.
+
+Save. The product page now has **Tiers** and **Gallery** tabs.
+
+[Products →](/plugins/ecommerce-plugin/products)
+
+# 5. Add a tier and a price
+
+On the **Tiers** tab, click **+**. A tier needs a label ("Bronze"), a key (`bronze`) and its first price.
+
+- A **one-time** price is paid once.
+- A **recurring** price bills every interval you choose and creates a subscription.
+- An amount of **0** makes the tier free.
+
+You can add more prices to a tier afterwards — a monthly and a discounted yearly option, for instance.
+
+[Tiers &amp; Prices →](/plugins/ecommerce-plugin/tiers-and-prices)
+
+# 6. Publish it
+
+Open the product again and set its **Status** to **Published**. It now appears at `/store`.
+
+# 7. Put the store in your menu
+
+The storefront is not linked from anywhere until you add it. Go to **Admin Panel → Menu Builder**, add an
+item of type **Route**, and pick `ecommerce_store`.
+
+[The Storefront →](/plugins/ecommerce-plugin/storefront)
+
+# 8. Give your staff access
+
+By default only super-admins can touch the store. In **Admin Panel → Roles**, grant the Ecommerce
+permissions to the roles that need them — for example, letting moderators fulfill orders without letting
+them edit prices.
+
+[Store Settings → Permissions](/plugins/ecommerce-plugin/store-settings#permissions)
+
+# 9. Place a test order
+
+With Stripe in test mode, buy your own product from `/store` using one of
+[Stripe's test cards](https://docs.stripe.com/testing) (`4242 4242 4242 4242`, any future expiry, any CVC).
+
+Check that:
+
+- the order page ends up on **Completed** (or **Paid** if you fulfill it by hand);
+- the order shows up under **Ecommerce → Orders**;
+- you received the confirmation email;
+- any roles or badges you attached were granted.
+
+If the order stays on **Pending**, your webhook is not arriving. See
+[Troubleshooting](/plugins/ecommerce-plugin/troubleshooting).
+
+# 10. Go live
+
+Swap your Stripe test keys for live keys and create a live-mode webhook endpoint the same way. Test-mode
+orders stay in your history; they are simply marked against the test keys.
+
+<Alert severity="info">
+    Selling online comes with obligations that differ per country — taxes, invoicing, consumer rights and a
+    refund policy among them. The plugin gives you the tools; deciding what your store promises is up to
+    you.
+</Alert>
+
+<GuideNavigator
+    previous={{ href: '/plugins/ecommerce-plugin/introduction', label: 'Introduction' }}
+    next={{ href: '/plugins/ecommerce-plugin/store-settings', label: 'Store Settings' }}
+/>

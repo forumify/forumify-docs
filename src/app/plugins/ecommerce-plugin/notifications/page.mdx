@@ -1,0 +1,136 @@
+import GuideNavigator from '@/components/GuideNavigator';
+import Alert from '@/components/Alert';
+
+# Notifications
+
+The store sends its own notifications, so you do not have to wire up confirmation emails yourself. Every
+one of them is both an **in-app notification** and an **email**, following each member's own notification
+settings.
+
+# To your customers
+
+<table>
+    <thead>
+        <tr>
+            <th>They receive</th>
+            <th>When</th>
+            <th>Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Payment received</strong></td>
+            <td>Their payment arrived, and the order still has to be fulfilled</td>
+            <td>Not sent for instantly delivered orders — those get the completion email instead, straight away</td>
+        </tr>
+        <tr>
+            <td><strong>Your order is complete</strong></td>
+            <td>The order reached Completed</td>
+            <td>The main confirmation. Includes the fulfillment details and your note</td>
+        </tr>
+        <tr>
+            <td><strong>Your payment failed</strong></td>
+            <td>A checkout payment genuinely failed</td>
+            <td>An abandoned checkout is not a failure and sends nothing</td>
+        </tr>
+        <tr>
+            <td><strong>Your payment for … failed</strong></td>
+            <td>A subscription renewal failed</td>
+            <td>States the date access is lost if it keeps failing</td>
+        </tr>
+        <tr>
+            <td><strong>Your subscription was cancelled</strong></td>
+            <td>A subscription was cancelled</td>
+            <td>Says how long it still runs</td>
+        </tr>
+        <tr>
+            <td><strong>Your subscription has ended</strong></td>
+            <td>A subscription ended</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td><strong>Your order was refunded</strong></td>
+            <td>An order was refunded, however it started</td>
+            <td>Including a lost chargeback</td>
+        </tr>
+        <tr>
+            <td><strong>Your refund request was declined</strong></td>
+            <td>You rejected a refund request</td>
+            <td>Your note is on their order page</td>
+        </tr>
+    </tbody>
+</table>
+
+Two deliberate silences:
+
+- **A successful renewal sends nothing.** Their payment provider already emails a receipt, and a monthly
+  "thanks for paying again" is a monthly invitation to cancel.
+- **An abandoned checkout sends nothing.** Someone who browsed away from the payment page has not failed at
+  anything, and should not be told the next day that their payment failed.
+
+<Alert severity="info">
+    An instantly delivered purchase results in exactly <strong>one</strong> email: "your order is complete".
+    An order you fulfill by hand results in two — one when the money lands, one when you hand it over.
+</Alert>
+
+# To your team
+
+<table>
+    <thead>
+        <tr>
+            <th>Who gets it</th>
+            <th>What</th>
+            <th>When</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Everyone with the product's <strong>Fulfilled by</strong> role</td>
+            <td><strong>New order to fulfill</strong></td>
+            <td>A manually fulfilled order is paid, including each renewal</td>
+        </tr>
+        <tr>
+            <td>Everyone with the product's <strong>Fulfilled by</strong> role</td>
+            <td><strong>Cancellation to handle</strong></td>
+            <td>A manually fulfilled subscription is cancelled or ends, and once more if its paid period runs out with the request still open</td>
+        </tr>
+    </tbody>
+</table>
+
+Both come from the **Fulfilled by** role set on the product, so who gets told is your choice per product: a
+shipping crew for merch, a game admin for server perks.
+
+<Alert severity="warning">
+    <strong>Refund requests have no notification.</strong> Any product can have a refund window, so there is
+    no obvious role to send them to. The count next to the <strong>Refunds</strong> menu item is what tells
+    you one is waiting.
+</Alert>
+
+# Where they go
+
+- **In-app**, in the member's notification list, linking straight to the order or subscription.
+- **By email**, using your site's normal mail setup and templates. Order emails include the fulfillment
+  details — a shipping address, the username someone entered — so your team can act straight from their
+  inbox.
+
+Members control what reaches them per channel in their own notification settings, like every other forumify
+notification.
+
+# If nothing arrives
+
+Store notifications are sent through your site's background workers. If your emails are not arriving:
+
+1. Check that the **message consumer is running** — see
+   [Background workers](/plugins/ecommerce-plugin/store-settings#background-workers).
+2. Check your site's **mail configuration**, by triggering any other forumify email.
+3. Check that the notification was created at all: if it is missing from the in-app list too, the event that
+   triggers it never happened — which usually means a
+   [webhook problem](/plugins/ecommerce-plugin/troubleshooting).
+
+A mail failure never breaks a payment. Orders are recorded and roles granted whether or not the email goes
+out.
+
+<GuideNavigator
+    previous={{ href: '/plugins/ecommerce-plugin/cms-widgets', label: 'CMS Widgets' }}
+    next={{ href: '/plugins/ecommerce-plugin/troubleshooting', label: 'Troubleshooting' }}
+/>

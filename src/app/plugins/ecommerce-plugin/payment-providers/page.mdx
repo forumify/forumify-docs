@@ -1,0 +1,171 @@
+import GuideNavigator from '@/components/GuideNavigator';
+import Alert from '@/components/Alert';
+
+# Payment Providers
+
+A payment provider is the service that actually takes your customers' money. The store never handles card
+details itself: customers are sent to the provider's own checkout, pay there, and the provider tells your
+store what happened.
+
+The plugin ships with **Stripe**. Other providers can be added by plugins, and everything in this chapter
+applies to them too.
+
+# The provider list
+
+**Admin Panel → Ecommerce → Payment providers**
+
+![Payment providers](/user-manual/plugins/ecommerce-plugin/payment-providers.png)
+
+Each provider shows two things:
+
+- **Enabled / Disabled** — whether it is offered at checkout.
+- **Configured / Not configured** — whether it has the credentials it needs.
+
+A provider is only offered to customers when it is **both enabled and configured**.
+
+<Alert severity="info">
+    Disabling a provider stops <em>new</em> checkouts. Payments already in flight, renewals of existing
+    subscriptions and refunds keep working, so turning one off never strands a customer mid-purchase.
+</Alert>
+
+If you have several providers enabled, customers choose between them on the checkout page. With exactly one,
+the choice is skipped.
+
+# Setting up Stripe
+
+You need a [Stripe account](https://dashboard.stripe.com). Stripe is available in most countries and handles
+cards, wallets like Apple Pay and Google Pay, and a range of local payment methods — which ones your
+customers see is configured in your Stripe dashboard, not here.
+
+## Step 1: get your secret key
+
+In the Stripe dashboard, go to **Developers → API keys** and copy your **secret key**.
+
+- A test-mode key starts with `sk_test_` (or `rk_test_` for a restricted key).
+- A live-mode key starts with `sk_live_` (or `rk_live_`).
+
+If you prefer a **restricted key**, it needs write access to Checkout Sessions, Customers, Products, Prices
+and Subscriptions.
+
+Paste it into the **Secret key** field on the Stripe page in your admin panel.
+
+![Stripe settings](/user-manual/plugins/ecommerce-plugin/stripe-settings.png)
+
+<Alert severity="info">
+    Saved keys are never shown back to you. The field shows a masked hint of what is stored, and leaving it
+    empty when you edit the provider keeps the existing key.
+</Alert>
+
+## Step 2: add the webhook
+
+This is the step that makes the store work. A **webhook** is how Stripe tells your store that a payment
+succeeded, a subscription renewed, or a card was declined. Without it, your customers pay and your store
+never finds out.
+
+The Stripe page in your admin panel shows the **webhook URL** for your site. It looks like:
+
+```
+https://your-community.com/store/webhook/stripe
+```
+
+In the Stripe dashboard, go to **Developers → Webhooks → Add endpoint**, paste that URL, and select all
+events from these four groups:
+
+- **checkout**
+- **invoice**
+- **customer**
+- **charge**
+
+Stripe's event picker lets you tick a whole group at once, so this is four clicks.
+
+<Alert severity="info">
+    Those groups contain more events than the store acts on, and that is fine: anything it does not
+    recognise is simply acknowledged and ignored. Picking whole groups means you cannot accidentally leave
+    out the one event that matters — a missing <code>invoice.paid</code>, for instance, would stop
+    subscriptions renewing, and you would not find out until one failed to renew.
+</Alert>
+
+## Step 3: paste the signing secret
+
+After creating the endpoint, Stripe shows its **signing secret**, starting with `whsec_`. Copy it into the
+**Webhook signing secret** field and save.
+
+The store uses this secret to verify that incoming webhooks really came from Stripe. A request with a bad
+signature is rejected.
+
+## Step 4: enable it
+
+Tick **Enabled** and save. Stripe now shows as *Enabled* and *Configured*, and appears at checkout.
+
+# Test mode first
+
+Stripe's test mode is a complete copy of Stripe that uses fake money. Use it to run real purchases through
+your store before you take a cent from anyone.
+
+1. Enter your **test** secret key and create a webhook endpoint in test mode.
+2. Buy your own product with a [test card](https://docs.stripe.com/testing) — `4242 4242 4242 4242`, any
+   future expiry date, any CVC.
+3. Watch the order reach **Completed**, check your notification email, and confirm any roles were granted.
+
+## Switching to live keys
+
+Replace the secret key with your live key and add a live-mode webhook endpoint with the same URL and events.
+
+The store keeps test-mode and live-mode data apart: products, prices and customers created in test mode are
+never reused with live keys. The first live purchase of a price simply creates a fresh copy of it in your
+live Stripe account. Your existing orders keep their history either way.
+
+<Alert severity="warning">
+    Test-mode subscriptions do not migrate to live mode. If members subscribed during your testing, cancel
+    those subscriptions before you go live so they do not linger as active subscriptions that Stripe will
+    never renew.
+</Alert>
+
+# How your catalog reaches Stripe
+
+You do not have to create anything in Stripe by hand, and you should not.
+
+- Your store is the source of truth for prices. Editing a product never calls Stripe.
+- The first time someone buys a given price, the store creates the matching Product and Price in Stripe
+  automatically.
+- Each **tier** becomes a Stripe Product, named "Product – Tier".
+- Each **price** becomes a Stripe Price.
+
+When you [change a price](/plugins/ecommerce-plugin/tiers-and-prices#changing-a-price), the old Stripe Price
+is archived the first time the new one is used. Existing subscriptions keep billing at the old amount, which
+is exactly what Stripe does too.
+
+<Alert severity="info">
+    Renaming a product or tier in your store does <strong>not</strong> rename it in Stripe. The Stripe name
+    is set once, when the price is first sold. It affects what customers see on Stripe's checkout page and
+    on their invoices, so if the name matters, get it right before the first sale.
+</Alert>
+
+# What customers see at checkout
+
+- Customers must be **logged in** to check out. A guest is asked to log in or register and comes straight
+  back to what they were buying.
+- They are redirected to Stripe's hosted checkout page, which handles cards, wallets and whatever else you
+  enabled in Stripe.
+- After paying they land back on their order page, which updates itself while the payment is confirmed.
+- Their email, display name and a link back to their forumify account are passed to Stripe, and a returning
+  customer reuses the same Stripe customer record.
+
+Free prices skip the provider entirely — there is nothing to charge.
+
+# Refunds, invoices and failed payments
+
+Stripe supports all three of the customer self-service features:
+
+- **Refunds** — approving a refund request sends the full amount back through Stripe.
+- **Invoices** — customers can download the Stripe invoice PDF from their order.
+- **Fixing a failed payment** — a customer whose renewal failed gets a link to Stripe's hosted invoice page,
+  where they can pay and replace their card.
+
+A provider added by another plugin may support only some of these. The buttons appear only where the
+provider behind that order can actually handle them.
+
+<GuideNavigator
+    previous={{ href: '/plugins/ecommerce-plugin/store-settings', label: 'Store Settings' }}
+    next={{ href: '/plugins/ecommerce-plugin/products', label: 'Products' }}
+/>

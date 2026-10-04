@@ -1,0 +1,203 @@
+import GuideNavigator from '@/components/GuideNavigator';
+import Alert from '@/components/Alert';
+
+# Orders
+
+An order is one purchase of one price. Subscription renewals are orders too, so the order list is the
+complete record of every payment your store has ever taken.
+
+# How a purchase happens
+
+1. A customer picks a tier and a billing option on the product page and clicks the buy button.
+2. **They log in.** Checkout always requires an account; a guest is sent to log in or register and comes back
+   to exactly what they were buying.
+3. The checkout page shows what they are buying, asks for anything the fulfillment type needs (a username, a
+   shipping address), and lets them choose a payment provider if you have several enabled.
+
+![The checkout page](/user-manual/plugins/ecommerce-plugin/checkout.png)
+
+4. They confirm, and the store creates a **pending** order and sends them to the provider.
+5. They pay, and come back to their order page, which updates itself while the payment is confirmed.
+
+Free prices skip step 4 and 5 — the order is paid on the spot.
+
+<Alert severity="info">
+    There is no shopping cart. Each order is a single product at a single price. Customers who want two
+    things buy them one after the other, and you get two clean orders.
+</Alert>
+
+# Order statuses
+
+<table>
+    <thead>
+        <tr>
+            <th>Status</th>
+            <th>Meaning</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Pending</strong></td>
+            <td>The order was created and is waiting for payment</td>
+        </tr>
+        <tr>
+            <td><strong>Paid</strong></td>
+            <td>The money arrived. The customer does not have their thing yet</td>
+        </tr>
+        <tr>
+            <td><strong>Completed</strong></td>
+            <td>The customer has what they paid for</td>
+        </tr>
+        <tr>
+            <td><strong>Failed</strong></td>
+            <td>The payment did not go through</td>
+        </tr>
+        <tr>
+            <td><strong>Cancelled</strong></td>
+            <td>The customer abandoned the checkout, or it expired</td>
+        </tr>
+        <tr>
+            <td><strong>Refunded</strong></td>
+            <td>The money went back. Final</td>
+        </tr>
+    </tbody>
+</table>
+
+How they move:
+
+```
+Pending ──paid──> Paid ──completed──> Completed
+   │                │                     │
+   ├──> Failed      └──────> Refunded <────┘
+   └──> Cancelled
+```
+
+A few things worth knowing, because they show up in real stores:
+
+- **Money arriving late always wins.** A customer who abandoned checkout and then paid anyway — or whose
+  delayed bank payment landed a day later — moves from Failed or Cancelled to Paid. You do not have to fix
+  those by hand.
+- **A refund is final.** Nothing moves an order out of Refunded.
+- **Cancelled means abandoned, not refused.** Your customer walked away from the payment page or it expired.
+  Nobody was charged and nothing is wrong.
+
+# The order list
+
+**Admin Panel → Ecommerce → Orders**
+
+![Order list](/user-manual/plugins/ecommerce-plugin/order-list.png)
+
+Filter by **status** and by **product**, and search by order reference, product or customer. The two
+views you will actually use:
+
+- **Paid** — your fulfillment queue: everything paid for and not yet handed over. The **Orders (3)** count in
+  the menu is exactly this.
+- **All** — the full history, for looking up a customer's payment.
+
+Renewal orders are tagged **Renewal**, so you can tell a new customer from a subscription that billed again.
+
+# The order page
+
+Open an order to see everything recorded about it:
+
+![Order details](/user-manual/plugins/ecommerce-plugin/order-view.png)
+
+- **Reference** — the public code the customer quotes when they contact you.
+- **Customer**, **product**, **tier**, **price** and the dates it was ordered, paid, completed or refunded.
+- **Payment provider** and its **provider reference** — the id to search for in your Stripe dashboard.
+- **Fulfillment details** — the shipping address, or whatever the customer entered at checkout.
+- A link to the **subscription** the order started or renewed, if there is one.
+- **Mark as completed**, with an optional note for the customer.
+- Any **refund request** on the order, with approve and reject.
+
+Everything about an order is a snapshot taken at the moment of sale: the product title, the tier label, the
+amount and the interval. Editing the product later, or archiving it, never changes what an old order says.
+
+<Alert severity="info">
+    That is also why orders cannot be edited or deleted. An order is a record of something that happened.
+    If it needs undoing, refund it.
+</Alert>
+
+# What customers see
+
+## My purchases
+
+`/store/orders`. Logged-in members get a link to it at the top of the store catalog, and every
+notification and order page links back to it.
+
+![My purchases](/user-manual/plugins/ecommerce-plugin/my-purchases.png)
+
+Two parts:
+
+- **Their subscriptions**, as cards. Anything needing attention (a failed payment) is at the top.
+- **Their order history**, as a list: date, reference, product, amount and status, newest first. Renewals are
+  marked.
+
+## An order page
+
+`/store/order/{reference}` — the page they land on after paying, and the one every notification links to.
+
+![A customer's order page](/user-manual/plugins/ecommerce-plugin/my-order.png)
+
+<table>
+    <thead>
+        <tr>
+            <th>Status</th>
+            <th>What it says</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Pending</strong></td>
+            <td>"We are waiting for your payment to be confirmed. This page updates automatically."</td>
+        </tr>
+        <tr>
+            <td><strong>Paid</strong></td>
+            <td>"Payment received. Your order is being processed."</td>
+        </tr>
+        <tr>
+            <td><strong>Completed</strong></td>
+            <td>"Thank you! Your order is complete." — plus your note, if you left one</td>
+        </tr>
+        <tr>
+            <td><strong>Failed</strong></td>
+            <td>"Your payment did not go through. You have not been charged." with a <strong>Try again</strong> button</td>
+        </tr>
+        <tr>
+            <td><strong>Cancelled</strong></td>
+            <td>"You cancelled this order. You have not been charged." with <strong>Try again</strong></td>
+        </tr>
+        <tr>
+            <td><strong>Refunded</strong></td>
+            <td>"This order was refunded. The money is on its way back to you."</td>
+        </tr>
+    </tbody>
+</table>
+
+Depending on the order they may also get:
+
+- **Pay now** — finish an unpaid order at the provider.
+- **Download invoice** — the provider's invoice PDF.
+- **Request a refund** — if the product has a refund period and the order still qualifies. See
+  [Refunds](/plugins/ecommerce-plugin/refunds).
+
+The page refreshes itself every few seconds while an order is pending, so a customer returning from their
+bank sees it flip to paid without touching anything.
+
+<Alert severity="info">
+    Order pages are private: only the customer who placed the order can open theirs.
+</Alert>
+
+# Invoices
+
+Invoices come from your payment provider, not from the store — they are the bookkeeping record, and the
+provider is the one who issued them. Customers download theirs from their order page whenever the provider
+behind that order supports it.
+
+With Stripe, that is every paid order: one-time payments get an invoice generated at checkout, and
+subscriptions always invoice.
+
+<GuideNavigator
+    previous={{ href: '/plugins/ecommerce-plugin/roles-and-badges', label: 'Roles & Badges' }}
+    next={{ href: '/plugins/ecommerce-plugin/subscriptions', label: 'Subscriptions' }}
+/>

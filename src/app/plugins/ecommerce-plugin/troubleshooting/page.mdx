@@ -1,0 +1,147 @@
+import GuideNavigator from '@/components/GuideNavigator';
+import Alert from '@/components/Alert';
+
+# Troubleshooting
+
+The things that actually go wrong, and what to do about them.
+
+# Orders stay on "Pending"
+
+**By far the most common problem, and it is almost always the webhook.**
+
+A pending order means the store created it and never heard back that it was paid. Check, in this order:
+
+1. **Is the webhook endpoint configured?** In your Stripe dashboard under **Developers → Webhooks**, there
+   should be an endpoint with the URL shown on the Stripe page in your admin panel.
+2. **Is it in the right mode?** A test-mode endpoint does not receive live events, and vice versa. If you
+   switched to live keys, you need a live-mode endpoint too.
+3. **Is the signing secret right?** Each endpoint has its own `whsec_…` secret. Pasting the test one while
+   running live keys means every webhook is rejected as unsigned.
+4. **Are the right events selected?** The endpoint needs all **checkout**, **invoice**, **customer** and
+   **charge** events. `checkout.session.completed` is the one that settles a purchase; `invoice.paid` is
+   the one that renews a subscription.
+5. **Can Stripe reach your site?** It must be publicly reachable over HTTPS with a valid certificate.
+   Stripe's webhook page shows the response it got for each attempt — a 404, a timeout or a certificate
+   error tells you what to fix.
+
+<Alert severity="info">
+    Stripe retries failed webhooks for days. Once you fix the endpoint, pending orders usually settle
+    themselves as the retries land. You can also hit <strong>Resend</strong> on a specific event in the
+    Stripe dashboard.
+</Alert>
+
+If the payment genuinely went through and you would rather not wait, opening the customer's order page
+re-checks with the provider — so asking them to open their order from **My purchases** often fixes it on the
+spot.
+
+# A customer paid but has not received anything
+
+Look at the order status.
+
+- **Paid** — the money is in and it is waiting for fulfillment. If the product is delivered by hand, it is
+  in your queue under **Orders → Paid**. If it is supposed to be instant, something got stuck: hand over
+  the goods and use **Mark as completed**.
+- **Completed** — the store thinks it is done. If roles were involved, check the member's roles in
+  **Admin Panel → Users**; if it was shipped, check the fulfillment details on the order.
+- **Pending** — see above.
+
+# A customer did not get their role or badge
+
+- Roles are granted when the payment arrives. If the order is still **Pending**, nothing has been granted
+  yet.
+- Check the product actually lists the role under **Grant roles** — and that it is not a system role, which
+  cannot be granted.
+- If they had the role **before** buying, the store leaves it alone at the end too. That is intentional.
+- After a subscription ends, a role is only removed if no other live purchase grants it and they did not
+  already have it.
+
+# A subscription that should have ended is still active
+
+Past-due subscriptions are ended by a scheduled task. If it never runs, they never end.
+
+Check that your site's **scheduler and message consumer are running** — see
+[Background workers](/plugins/ecommerce-plugin/store-settings#background-workers). On a self-hosted install
+this is the single most common cause of subscription weirdness.
+
+# "This product is not available right now"
+
+The customer clicked a buy button whose price no longer exists or is no longer active. Usually one of:
+
+- the tier's price was **deactivated** and no active one is left;
+- the product was **archived** or set back to **Draft**;
+- a [Buy Button widget](/plugins/ecommerce-plugin/cms-widgets#buy-button) points at a tier whose prices are
+  all inactive.
+
+Re-activate a price, or add a new one to that tier.
+
+# I cannot edit a price
+
+Because it has been sold. A sold price is locked forever so that existing orders and invoices keep saying
+what actually happened.
+
+Use **Change price** to replace it with a new one; existing subscribers stay on the old amount. See
+[Locked prices](/plugins/ecommerce-plugin/tiers-and-prices#locked-prices).
+
+# I cannot delete a product
+
+Because it has been sold. **Archive** it instead: it disappears from the store, keeps all its history, and
+existing subscriptions keep running until you cancel them.
+
+# I cannot delete a price or a tier
+
+- A **sold** price cannot be deleted. Untick **Active** to stop offering it.
+- A tier's **last** price cannot be deleted, because every tier needs one. Delete the tier instead, or
+  deactivate the price.
+- A tier with **sold** prices cannot be deleted at all.
+
+# Prices show the wrong currency
+
+Prices keep the currency they were created with. If you changed the store currency after creating prices,
+the old ones did not move.
+
+Create new prices at the correct currency (using **Change price** on sold ones) and deactivate the old ones.
+
+# The store does not appear anywhere on my site
+
+It is not linked automatically. Add it in **Admin Panel → Menu Builder** as a **Route** item pointing at
+`ecommerce_store`. See [The Storefront](/plugins/ecommerce-plugin/storefront#getting-members-there).
+
+# A product is missing from the store
+
+- Its status must be **Published**. Draft and Archived products are not listed and their pages 404.
+- It needs at least one tier with an **active** price.
+- If you are looking at a filtered catalog, check it is in that category.
+
+# Emails are not arriving
+
+See [Notifications → If nothing arrives](/plugins/ecommerce-plugin/notifications#if-nothing-arrives).
+
+# A refund did not revoke anything
+
+- **Partial refunds** are deliberately ignored by the store: the order keeps its status and nothing is
+  revoked. Only a full refund counts.
+- A refund revokes **that order's** grants only, and never something the member already had or that another
+  live purchase also grants.
+- A subscription's roles and badges last as long as the subscription. Refunding one of its payments from the
+  admin panel ends it; refunding in Stripe's dashboard does not, so the subscription — and its access — keeps
+  running until you cancel it from **Ecommerce → Subscriptions** or in Stripe.
+
+# Something in Stripe has the wrong name
+
+Stripe product names are set once, the first time a price is sold. Renaming a product or tier in your store
+does not rename it in Stripe, so old customers' invoices keep the old name.
+
+If the name matters, fix it directly in your Stripe dashboard.
+
+# Getting help
+
+When you report a problem, these make it answerable straight away:
+
+- the **order reference** (the code on the order page);
+- the order's **status** and its **provider reference**;
+- whether your provider is in **test or live** mode;
+- what the **webhook attempts** look like in your provider's dashboard.
+
+<GuideNavigator
+    previous={{ href: '/plugins/ecommerce-plugin/notifications', label: 'Notifications' }}
+/>

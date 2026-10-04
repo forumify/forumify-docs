@@ -1,0 +1,197 @@
+import GuideNavigator from '@/components/GuideNavigator';
+import Alert from '@/components/Alert';
+
+# Products
+
+A product is the thing you sell. It carries the name, the description, the images and the rules about how
+it is delivered — but not the price. Prices live on
+[tiers](/plugins/ecommerce-plugin/tiers-and-prices), which is the next chapter.
+
+# Categories
+
+**Admin Panel → Ecommerce → Categories**
+
+Categories group products on the storefront. Customers see them as filter buttons above the catalog.
+
+<table>
+    <thead>
+        <tr>
+            <th>Field</th>
+            <th>What it does</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Title</strong></td>
+            <td>The filter button's label</td>
+        </tr>
+        <tr>
+            <td><strong>Slug</strong></td>
+            <td>The part that ends up in the URL (<code>/store?category=merch</code>)</td>
+        </tr>
+        <tr>
+            <td><strong>Description</strong></td>
+            <td>Shown above the products when a customer picks this category</td>
+        </tr>
+    </tbody>
+</table>
+
+Categories can be reordered by dragging them in the list; that order is the order customers see. A product
+can be in several categories, or in none — a product with no category still shows up under "All".
+
+Only categories that contain at least one published product appear on the storefront, so an empty category
+is never a dead end.
+
+# Creating a product
+
+**Admin Panel → Ecommerce → Products → Create**
+
+![Product form](/user-manual/plugins/ecommerce-plugin/product-form.png)
+
+<table>
+    <thead>
+        <tr>
+            <th>Field</th>
+            <th>What it does</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Title</strong></td>
+            <td>The product name, shown everywhere</td>
+        </tr>
+        <tr>
+            <td><strong>Key</strong></td>
+            <td>A stable identifier, such as <code>t-shirt</code> or <code>acme/my-plugin</code></td>
+        </tr>
+        <tr>
+            <td><strong>Status</strong></td>
+            <td>Draft, Published or Archived</td>
+        </tr>
+        <tr>
+            <td><strong>Categories</strong></td>
+            <td>Which filters it appears under</td>
+        </tr>
+        <tr>
+            <td><strong>Short description</strong></td>
+            <td>One line, shown on the catalog tile</td>
+        </tr>
+        <tr>
+            <td><strong>Description</strong></td>
+            <td>The full description on the product page, with formatting</td>
+        </tr>
+        <tr>
+            <td><strong>Cover image</strong></td>
+            <td>The tile image, and the first image on the product page (max 2 MB)</td>
+        </tr>
+        <tr>
+            <td><strong>Refund period</strong></td>
+            <td>How many days after delivery customers may ask for a refund. Empty means not refundable</td>
+        </tr>
+        <tr>
+            <td><strong>Fulfillment</strong></td>
+            <td>How customers get what they bought — see <a href="/plugins/ecommerce-plugin/fulfillment">Fulfillment</a></td>
+        </tr>
+        <tr>
+            <td><strong>Grant roles / Grant badges</strong></td>
+            <td>What buyers receive — see <a href="/plugins/ecommerce-plugin/roles-and-badges">Roles &amp; Badges</a></td>
+        </tr>
+    </tbody>
+</table>
+
+After saving, the product page gains **Tiers** and **Gallery** tabs.
+
+## About the key
+
+The key is how integrations and external systems recognise your product, independently of its name or its
+URL. It never changes on its own, and it is **locked as soon as the product has been sold**.
+
+Use lowercase letters, numbers, dashes, underscores, dots and slashes. `supporter`, `merch-hoodie` and
+`acme/premium-plugin` are all fine.
+
+<Alert severity="info">
+    If you do not have integrations, the key never matters to you — but pick something readable anyway,
+    because you will see it in order exports and you cannot change it after the first sale.
+</Alert>
+
+## Status
+
+<table>
+    <thead>
+        <tr>
+            <th>Status</th>
+            <th>Effect</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Draft</strong></td>
+            <td>Invisible in the store. Its page returns a 404 to customers. Use it while you set the product up</td>
+        </tr>
+        <tr>
+            <td><strong>Published</strong></td>
+            <td>For sale</td>
+        </tr>
+        <tr>
+            <td><strong>Archived</strong></td>
+            <td>No longer for sale, but everything about it is kept: order history, existing subscriptions, and the customers who already bought it</td>
+        </tr>
+    </tbody>
+</table>
+
+**Archive rather than delete.** A product that has been sold can no longer be deleted at all — the store
+refuses and points you at archiving — because deleting it would tear a hole in your order history.
+
+Archiving does **not** cancel existing subscriptions. They keep renewing until you or the customer cancel
+them. If you want a product gone completely, archive it and then cancel its subscriptions from
+**Ecommerce → Subscriptions**.
+
+# Images
+
+## The cover image
+
+Set on the product form. It is what customers see on the catalog tile, and the first image on the product
+page. It is also the image used when someone shares a link to your product on Discord, X or Facebook, so
+give it a decent 1200×630-ish crop if you care about that.
+
+## The gallery
+
+The **Gallery** tab holds extra images, shown after the cover image on the product page. Upload several at
+once, drag the rows to reorder them, and delete a row to remove the file.
+
+![Product gallery](/user-manual/plugins/ecommerce-plugin/product-gallery.png)
+
+Each image can be up to 4 MB.
+
+<Alert severity="info">
+    Images are resized automatically for the tile, the product page, the thumbnails and the social preview.
+    Upload the best quality you have and let the store scale it down.
+</Alert>
+
+# What customers see
+
+![A product page](/user-manual/plugins/ecommerce-plugin/product-page.png)
+
+The product page shows the gallery, your description, and the tiers side by side with their prices. If the
+product has only one tier, its buy button sits right at the top of the page instead.
+
+Everything is also readable without JavaScript, and product pages carry proper titles, descriptions and
+preview images for search engines and link previews.
+
+[The Storefront →](/plugins/ecommerce-plugin/storefront)
+
+# Writing a product that sells
+
+A few things the layout rewards:
+
+- **Short description**: one line, concrete. It is all the catalog tile shows.
+- **Description**: the full pitch. Headings and lists are rendered properly.
+- **Tier description**: use a **bulleted list**. Bullets are rendered as a feature list with check marks, so
+  a tier's list of perks lines up neatly against the other tiers.
+- **One product, one thing.** If two variants are delivered differently — one shipped, one instant — they
+  are two products, not two tiers.
+
+<GuideNavigator
+    previous={{ href: '/plugins/ecommerce-plugin/payment-providers', label: 'Payment Providers' }}
+    next={{ href: '/plugins/ecommerce-plugin/tiers-and-prices', label: 'Tiers & Prices' }}
+/>

@@ -1,0 +1,95 @@
+import GuideNavigator from '@/components/GuideNavigator';
+import Alert from '@/components/Alert';
+
+# The Storefront
+
+The shop your members see. There are two pages, and they are both public.
+
+# The catalog: `/store`
+
+![The store catalog](/user-manual/plugins/ecommerce-plugin/storefront.png)
+
+- Every **published** product as a tile: image, title, short description and its cheapest price ("From
+  €3.00 / month").
+- **Category filters** across the top. Only categories holding at least one published product appear.
+  Picking one shows that category's description above the products.
+- A **search box** that matches titles and short descriptions.
+- A **My purchases** button, for logged-in members.
+
+Draft and archived products are not listed, and their pages return a 404.
+
+The category filter and the search both live in the URL, so `/store?category=merch` and `/store?q=hoodie`
+are links you can share, put in a menu, or send to a member.
+
+# A product page: `/store/your-product-slug`
+
+- The **image gallery**: cover image first, then the gallery, with thumbnails, arrow-key navigation and a
+  full-size view.
+- Your **description**.
+- The **tier comparison**: every tier side by side, with its feature list, its billing options, and a buy
+  button. The tier you marked **Recommended** is highlighted.
+
+With only one tier, the buy box moves into the page header instead of a comparison — a single product at a
+single price is one click from the top of the page.
+
+The page works without JavaScript: the first image and the first price are rendered server-side and the buy
+button submits normally. JavaScript adds the gallery and makes the big price follow the billing option the
+customer selects.
+
+# Getting members there
+
+Nothing links to the store until you add it. **Admin Panel → Menu Builder** → add an item of type **Route**
+→ pick `ecommerce_store`.
+
+Other things worth linking:
+
+- A single product: a **URL** item pointing at `/store/your-product-slug`.
+- A category: `/store?category=your-category-slug`.
+- **My purchases**: the route `ecommerce_orders`, useful in a member or profile menu if you sell
+  subscriptions.
+- Your own landing page built with the [CMS widgets](/plugins/ecommerce-plugin/cms-widgets).
+
+Because menu items carry permissions, you can restrict who sees the link — a members-only shop is a menu
+item limited to a role.
+
+<Alert severity="info">
+    Menu permissions hide the link, not the pages. <code>/store</code> stays reachable to anyone who has the
+    URL, and checkout always requires a login. There is no "hidden product" setting: a product is either
+    published and visible to everyone, or it is Draft and cannot be bought at all.
+</Alert>
+
+# Link previews and search engines
+
+Store pages come with their own titles, descriptions, canonical URLs and social preview tags, so a product
+link pasted into Discord, X, Facebook or Slack unfurls into a proper card with your cover image.
+
+Product pages also publish structured data describing the product and its prices, which is what lets search
+engines show price information in results. None of this needs configuring — it comes from the title, the
+short description and the cover image you already filled in.
+
+<Alert severity="info">
+    The social preview is a 1200×630 crop of your <strong>cover image</strong>. If your product links look
+    wrong when shared, that image is the thing to fix.
+</Alert>
+
+# Theming
+
+The storefront is styled entirely with your theme's own colours, fonts and radii — it inherits whatever your
+community looks like rather than imposing a look of its own. Switching theme restyles the store with it.
+
+Every section of the store templates is a named, overridable block, so a custom theme can replace any part
+of a product page, a tier card or a plan card without forking the whole template. That is developer
+territory; see the [customization guides](/guides/customization/introduction).
+
+# Where customers manage their purchases
+
+`/store/orders` — **My purchases**, linked from the top of the catalog. Their subscriptions as cards and
+their full payment history below. It is where they download invoices, cancel a subscription and fix a failed
+payment.
+
+[Orders → What customers see](/plugins/ecommerce-plugin/orders#what-customers-see)
+
+<GuideNavigator
+    previous={{ href: '/plugins/ecommerce-plugin/refunds', label: 'Refunds' }}
+    next={{ href: '/plugins/ecommerce-plugin/cms-widgets', label: 'CMS Widgets' }}
+/>

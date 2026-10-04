@@ -1,0 +1,163 @@
+import GuideNavigator from '@/components/GuideNavigator';
+import Alert from '@/components/Alert';
+
+# Refunds
+
+Customers ask, you decide. The store never refunds anything automatically: "14 days, no questions asked" is
+a policy your community sets, not a rule the plugin enforces on your money.
+
+# Making a product refundable
+
+On the product form, set **Refund period** to the number of days after delivery that customers may ask for
+their money back. Leave it empty and the product is not refundable — that is the default.
+
+<Alert severity="info">
+    The refund period is copied onto each order when it is placed. Changing it later never changes what an
+    existing customer was promised, in either direction.
+</Alert>
+
+## When an order qualifies
+
+<table>
+    <thead>
+        <tr>
+            <th>The order is</th>
+            <th>Refundable?</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Completed</strong></td>
+            <td>Until <em>completed date + refund period</em></td>
+        </tr>
+        <tr>
+            <td><strong>Paid</strong>, not yet completed</td>
+            <td><strong>Always</strong>, with no deadline</td>
+        </tr>
+        <tr>
+            <td>Free</td>
+            <td>Never — there is no money to send back</td>
+        </tr>
+        <tr>
+            <td>Already refunded, failed, cancelled or pending</td>
+            <td>No</td>
+        </tr>
+    </tbody>
+</table>
+
+The clock starts at delivery, not at payment. An order you have not got round to completing stays refundable
+until you do, which is the fair way round.
+
+# Handling a request
+
+A customer asks from their order page, with a reason. You get the request in two places:
+
+- **Admin Panel → Ecommerce → Refunds**, which lists everything waiting. The menu item carries the count —
+  **Refunds (1)**.
+- On the order itself, where you can see the whole context.
+
+![Refund requests](/user-manual/plugins/ecommerce-plugin/refunds.png)
+
+On the order itself you see why they asked, and decide:
+
+![Handling a refund request](/user-manual/plugins/ecommerce-plugin/refund-handle.png)
+
+You have two buttons, and an optional **note for the customer** that is shown to them either way:
+
+- **Approve and refund** — the full amount goes back through the payment provider, the order becomes
+  **Refunded**, and the customer is notified.
+- **Reject** — the order is left exactly as it is, and the customer is told their request was declined.
+
+One request per order. A customer whose request is rejected cannot ask again through the store, so put the
+reason in the note.
+
+<Alert severity="warning">
+    There is no notification when a refund request comes in — the count next to the <strong>Refunds</strong>
+    menu item is what tells you. If you sell refundable products, get into the habit of glancing at it.
+</Alert>
+
+# What a refund undoes
+
+Approving a refund:
+
+- sends the **full amount** back through the provider;
+- moves the order to **Refunded**, which is final;
+- **revokes the roles and badges** a one-time order granted, under the usual rules — roles the member already
+  had, or that another live purchase also grants, stay put;
+- emails the customer.
+
+If the order is a payment of a subscription that is still running — its first payment or a renewal —
+approving it also **ends that subscription right away**. That is what takes its roles and badges back, and
+it makes sure someone who got their money back is never charged again. The approve form warns you, and the
+customer is told before they send the request. If the payment provider can't end the subscription, nothing
+is refunded and you can try again.
+
+The [cancel screen](/plugins/ecommerce-plugin/subscriptions#as-an-admin)'s **Also refund the last payment**
+option works the same way.
+
+# Refunds that start somewhere else
+
+Not every refund goes through this page, and the store keeps up either way:
+
+- **A refund you issue in the Stripe dashboard** is reported back and the order becomes Refunded here too,
+  with the same consequences.
+- **A lost chargeback** — a customer disputed the charge with their bank and the bank sided with them — is
+  treated as a refund. A dispute you win changes nothing.
+
+<Alert severity="info">
+    <strong>Partial refunds are not supported.</strong> If you partially refund in your provider's dashboard,
+    the store notices it and deliberately leaves the order alone: it is neither fully refunded nor
+    untouched, and the store will not pretend otherwise. The money still moves — it is just not reflected in
+    the order's status, and no roles are revoked.
+</Alert>
+
+# What customers see
+
+On their order page, if the order qualifies:
+
+> You can ask for a refund until 14 March 2026 — **Request a refund**
+
+They click it, write why, and send. From then on the order page shows the state of their request:
+
+<table>
+    <thead>
+        <tr>
+            <th>State</th>
+            <th>They see</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Pending</strong></td>
+            <td>"Refund requested. An admin is looking at it."</td>
+        </tr>
+        <tr>
+            <td><strong>Approved</strong></td>
+            <td>"Your refund was approved." plus your note</td>
+        </tr>
+        <tr>
+            <td><strong>Rejected</strong></td>
+            <td>"Your refund request was declined." plus your note</td>
+        </tr>
+    </tbody>
+</table>
+
+An approved refund also sends them an email, and the money takes however long their bank takes — typically
+five to ten days.
+
+# A sensible policy
+
+The plugin does not decide these for you, but a few defaults that work:
+
+- **Digital goods delivered instantly**: a short window, 7 or 14 days, or none at all.
+- **Physical goods**: a window long enough to cover delivery plus your local statutory cooling-off period.
+- **Subscriptions**: often none. A customer who cancels keeps the period they paid for anyway, which is
+  usually enough.
+
+Whatever you choose, write it somewhere your customers can read it before they buy — a CMS page linked from
+the store, for instance.
+
+<GuideNavigator
+    previous={{ href: '/plugins/ecommerce-plugin/subscriptions', label: 'Subscriptions' }}
+    next={{ href: '/plugins/ecommerce-plugin/storefront', label: 'The Storefront' }}
+/>

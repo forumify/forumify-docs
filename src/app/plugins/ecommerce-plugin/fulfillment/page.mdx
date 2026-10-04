@@ -1,0 +1,160 @@
+import GuideNavigator from '@/components/GuideNavigator';
+import Alert from '@/components/Alert';
+
+# Fulfillment
+
+Fulfillment is how a customer actually gets what they bought, after the money has arrived.
+
+**Paid is not completed.** *Paid* means the payment went through. *Completed* means the customer has the
+thing. For an instant purchase those are the same moment; for anything you hand over yourself, the order
+waits in between — and that waiting list is your to-do list.
+
+# Choosing a fulfillment type
+
+Every product has exactly one fulfillment type, set on the product form.
+
+![Fulfillment settings](/user-manual/plugins/ecommerce-plugin/fulfillment-settings.png)
+
+<table>
+    <thead>
+        <tr>
+            <th>Type</th>
+            <th>Use it for</th>
+            <th>Completed</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Delivered instantly</strong></td>
+            <td>Roles, badges, access — anything the store itself can hand over</td>
+            <td>Automatically, the moment payment lands</td>
+        </tr>
+        <tr>
+            <td><strong>Delivered by an admin</strong></td>
+            <td>Digital goods you hand over yourself: in-game items, server perks, keys</td>
+            <td>When you mark the order as completed</td>
+        </tr>
+        <tr>
+            <td><strong>Shipped</strong></td>
+            <td>Physical goods. Collects a shipping address at checkout</td>
+            <td>When you mark the order as completed</td>
+        </tr>
+    </tbody>
+</table>
+
+Changing the type only affects **new** orders. Orders already placed keep the type they were bought under,
+so a product you switch from shipped to instant does not suddenly lose the addresses you still have to ship
+to.
+
+<Alert severity="info">
+    One type per product. If two variants of a thing are delivered differently, they are two products, not
+    two tiers of one.
+</Alert>
+
+## Delivered instantly
+
+The default. The order goes straight from paid to completed, and the customer gets their confirmation
+immediately.
+
+This is the right choice whenever the purchase does not require a human: a supporter subscription that
+[grants a role](/plugins/ecommerce-plugin/roles-and-badges), a donation, an access pass.
+
+## Delivered by an admin
+
+For things you hand over yourself. Two extra settings appear:
+
+- **Ask the customer for** — an optional question asked at checkout, such as "Minecraft username" or
+  "Discord tag". Whatever the customer types is shown on the order, in your notification, and on their own
+  order page. Leave it empty if you do not need anything from them.
+- **Fulfilled by** — the role responsible. **Everyone with this role is notified** when one of these orders
+  is paid. It is required for manual types.
+
+## Shipped
+
+For physical goods. At checkout the customer fills in a shipping address:
+
+Full name, address, address line 2, postal code, city, state or region, and country.
+
+![The shipping address at checkout](/user-manual/plugins/ecommerce-plugin/checkout-shipping.png)
+
+The address is shown on the order for you to ship to, and on the customer's own order page so they can check
+what they entered. A returning customer's address is prefilled from their last shipped order.
+
+**Fulfilled by** is required here too — that role is who gets told there is a parcel to send.
+
+<Alert severity="info">
+    Shipping costs, rates and stock levels are not part of the plugin. Your price includes shipping, so if
+    you ship internationally, either build that into the price or sell separate tiers per region.
+</Alert>
+
+# Working through paid orders
+
+**Admin Panel → Ecommerce → Orders**, and set the status filter to **Paid**. That is your fulfillment queue:
+everything that has been paid for and not yet handed over.
+
+The **Orders** menu item shows the count in brackets — **Orders (3)** — so you can see at a glance whether
+anything is waiting.
+
+## Marking an order as completed
+
+Open the order and use **Mark as completed**.
+
+![Complete an order](/user-manual/plugins/ecommerce-plugin/order-complete.png)
+
+- **Note for the customer** — optional. A tracking link, a code, an explanation. It is shown on their order
+  page and included in the notification they receive.
+- The order moves to **Completed**, records who completed it, and the customer gets their "order is
+  complete" email.
+
+If the product is refundable, note that the refund clock starts when you complete the order, not when it was
+paid. A customer waiting on you does not lose refund days.
+
+## Completing an order that should have been automatic
+
+The action is available for any paid order, including instant ones. You would use it when an integration got
+stuck: the customer has their thing, but the order never moved off **Paid**. The form asks you to confirm
+that you understand it is normally automatic, so nobody does it by accident.
+
+# Subscriptions and fulfillment
+
+A subscription renewal of a **manually fulfilled** product stays on **Paid** every period, so a monthly
+merch box or a monthly handover lands in your queue again each time. Renewals of every other type complete
+by themselves — the subscription simply continues.
+
+## Cancellations that need you
+
+When a subscription of a **manually fulfilled** product is cancelled or ends, the store opens a
+**cancellation request**: something was handed over by hand, so someone has to take it back by hand.
+
+- Everyone with the product's **Fulfilled by** role is notified.
+- The **Subscriptions** menu item carries the count of open ones.
+- The subscription page has a **Mark as handled** action once you have closed it out.
+- The customer's plan card says "Cancellation requested. An admin is finishing it." until you do.
+- If the paid period runs out and the request is still open, the store reminds you once.
+
+Products that are delivered instantly never produce these — there is nothing to tear down.
+
+[Subscriptions →](/plugins/ecommerce-plugin/subscriptions)
+
+# What customers see
+
+On their order page:
+
+- **Pending** — "We are waiting for your payment to be confirmed." The page refreshes itself.
+- **Paid** — "Payment received. Your order is being processed." Plus whatever they entered at checkout, so
+  they can check their shipping address.
+- **Completed** — "Thank you! Your order is complete.", with your note if you left one.
+
+They are emailed at both steps: once when payment arrives (only for orders that are not instant), and once
+when you complete it.
+
+<Alert severity="info">
+    The gap between paid and completed is the part customers worry about. A one-line note when you complete
+    the order — a tracking number, "sent to your Discord DMs" — does more for support load than anything
+    else in this chapter.
+</Alert>
+
+<GuideNavigator
+    previous={{ href: '/plugins/ecommerce-plugin/tiers-and-prices', label: 'Tiers & Prices' }}
+    next={{ href: '/plugins/ecommerce-plugin/roles-and-badges', label: 'Roles & Badges' }}
+/>

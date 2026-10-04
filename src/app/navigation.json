@@ -205,6 +205,88 @@
       },
       {
         "type": "collection",
+        "path": "ecommerce-plugin",
+        "label": "Ecommerce",
+        "children": [
+          {
+            "type": "route",
+            "path": "introduction",
+            "label": "Introduction"
+          },
+          {
+            "type": "route",
+            "path": "getting-started",
+            "label": "Getting Started"
+          },
+          {
+            "type": "route",
+            "path": "store-settings",
+            "label": "Store Settings"
+          },
+          {
+            "type": "route",
+            "path": "payment-providers",
+            "label": "Payment Providers"
+          },
+          {
+            "type": "route",
+            "path": "products",
+            "label": "Products"
+          },
+          {
+            "type": "route",
+            "path": "tiers-and-prices",
+            "label": "Tiers & Prices"
+          },
+          {
+            "type": "route",
+            "path": "fulfillment",
+            "label": "Fulfillment"
+          },
+          {
+            "type": "route",
+            "path": "roles-and-badges",
+            "label": "Roles & Badges"
+          },
+          {
+            "type": "route",
+            "path": "orders",
+            "label": "Orders"
+          },
+          {
+            "type": "route",
+            "path": "subscriptions",
+            "label": "Subscriptions"
+          },
+          {
+            "type": "route",
+            "path": "refunds",
+            "label": "Refunds"
+          },
+          {
+            "type": "route",
+            "path": "storefront",
+            "label": "The Storefront"
+          },
+          {
+            "type": "route",
+            "path": "cms-widgets",
+            "label": "CMS Widgets"
+          },
+          {
+            "type": "route",
+            "path": "notifications",
+            "label": "Notifications"
+          },
+          {
+            "type": "route",
+            "path": "troubleshooting",
+            "label": "Troubleshooting"
+          }
+        ]
+      },
+      {
+        "type": "collection",
         "path": "milhq-plugin",
         "label": "MILHQ",
         "children": [

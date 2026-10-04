@@ -1,64 +1,201 @@
 import Alert from '@/components/Alert';
 import Link from 'next/link';
 
-🚧🚧🚧 This page is a work in progress!! 🚧🚧🚧
-
 # Plugins
 
 Plugins are re-usable packages that add functionality to a forumify instance. A plugin should be installable on any forumify instance.
 If you'd prefer to create specific functionality only for your forumify instance, you should work in your instance's `src/` folder instead.
-
-## Setup
 
 <Alert severity="info">
     It is recommended to create a local sandbox forumify environment where you can activate your in-dev plugins without causing any issues.
     See the <Link href="/guides/customization/introduction">Customization Introduction Guide</Link> to learn about running a local forumify instance.
 </Alert>
 
-forumify plugins are almost identical to Symfony bundles but with some configuration taken care of in an abstraction layer. Let's start by creating an empty directory to work in.
+## Creating a plugin
+
+One command generates a plugin that is ready to develop:
 
 ```
-$ mkdir todo-plugin; cd todo-plugin
+$ composer create-project forumify/plugin-skeleton my-plugin
 ```
 
-Then we'll initialize composer.
+It asks for your package name, namespace, license and whether you want a test suite and CI workflows, then writes the plugin into `my-plugin/`.
+You get a bare plugin: registered with forumify and ready to develop, with no example controllers, entities or templates to delete first.
 
 ```
-$ composer init
+Setting up your forumify plugin
+Press enter to accept the [default] shown for each question.
 
-This command will guide you through creating your composer.json config.
+Package name (vendor/name) [acme/my-plugin]: acme/todo-plugin
+PHP namespace [Acme\Todo]:
+Plugin class name [AcmeTodoPlugin]:
+Plugin name, as your users will see it [Todo]:
+Description [Todo plugin for forumify]: Keep track of your tasks
+Author [acme]: Acme
+Homepage (optional):
+License [OSL-3.0]:
+Minimum forumify version [^1.3]:
 
-Package name (<vendor>/<name>) [xxx/xxx]: acme/forumify-todo-plugin
-Description []: Simple TODO example
-Author [n to skip]: n
-Minimum Stability []:
-Package Type (e.g. library, project, metapackage, composer-plugin) []: forumify-plugin
-License []: OSL-3.0
+What should the plugin come with?
+A test suite (phpunit, wired up to forumify's test kit) [Y/n]:
+GitHub Actions workflows for tests and code quality [Y/n]:
+```
 
-Define your dependencies.
+Add `--no-interaction` to accept every default, deriving the package name from the directory you generate into.
 
-Would you like to define your dependencies (require) interactively [yes]? n
-Would you like to define your dev dependencies (require-dev) interactively [yes]? n
-Add PSR-4 autoload mapping? Maps namespace "Acme\ForumifyTodoPlugin" to the entered relative path. [src/, n to skip]:
+What you get:
 
+- `composer.json` with the plugin wiring already in place
+- your plugin class, service and route configuration
+- `phpcs.xml` and `phpstan.neon` (level 8), runnable with `make quality`
+- a test suite wired up to forumify's test kit, runnable with `make tests`
+- GitHub Actions workflows running both on every push and pull request
+- a `README.md` explaining where controllers, entities and templates go
 
+## Anatomy of a plugin
+
+forumify plugins are almost identical to Symfony bundles, with some configuration taken care of in an abstraction layer.
+
+```
+src/
+  AcmeTodoPlugin.php      Plugin class: name, author, permissions
+config/
+  services.yaml           Everything in src/ is registered as a service
+  routes.yaml             Where your controllers' routes are mounted
+migrations/               Database migrations
+tests/                    Your tests
+```
+
+As you build, add controllers in `src/Controller` (and `src/Admin/Controller` for admin pages, mounted behind `/admin`),
+entities in `src/Entity`, Twig templates in `templates/` and translations in `translations/`.
+The generated README lists where each of these goes.
+
+Two things in `composer.json` make it a plugin:
+
+```json
 {
-    "name": "acme/forumify-todo-plugin",
-    "description": "Simple TODO example",
     "type": "forumify-plugin",
-    "license": "OSL-3.0",
-    "autoload": {
-        "psr-4": {
-            "Acme\\ForumifyTodoPlugin\\": "src/"
-        }
-    },
-    "require": {}
+    "extra": {
+        "forumify-plugin-class": "Acme\\Todo\\AcmeTodoPlugin"
+    }
 }
-
-Do you confirm generation [yes]? yes
-Generating autoload files
-Generated autoload files
-PSR-4 autoloading configured. Use "namespace Acme\ForumifyTodoPlugin;" in src/
-Include the Composer autoloader with: require 'vendor/autoload.php';
 ```
 
+forumify discovers installed plugins through the package type, and boots the class named in `extra`.
+That class extends `AbstractForumifyPlugin` and describes your plugin:
+
+```php
+class AcmeTodoPlugin extends AbstractForumifyPlugin
+{
+    public function getPluginMetadata(): PluginMetadata
+    {
+        return new PluginMetadata(
+            'Todo',
+            'Acme',
+            'Keep track of your tasks',
+            'https://acme.example.com',
+        );
+    }
+
+    public function getPermissions(): array
+    {
+        return [
+            'admin' => [
+                'todos' => ['view', 'manage'],
+            ],
+        ];
+    }
+}
+```
+
+Permissions declared here are checked as `<slugged-plugin-name>.admin.todos.view`, so the example above becomes `todo.admin.todos.view`.
+
+Everything in `config/` is loaded for you, and so are your entities in `src/Entity`, your `migrations/` directory and your API resources.
+These are resolved from wherever the plugin is installed, so you never write a vendor path yourself.
+
+<Alert severity="info">
+    Shipping your own `config/packages/doctrine.yaml`, `doctrine_migrations.yaml` or `api_platform.yaml` turns the matching automatic registration off and leaves you in full control.
+</Alert>
+
+## Developing against a forumify instance
+
+Point your sandbox instance at your working copy with a path repository, so your changes are live without publishing anything:
+
+```
+$ cd /path/to/your/forumify-instance
+$ composer config repositories.todo-plugin path /path/to/todo-plugin
+$ composer require acme/todo-plugin:@dev
+```
+
+Then activate it:
+
+```
+$ php bin/console forumify:plugins:refresh
+$ php bin/console forumify:plugins:activate acme/todo-plugin
+$ php bin/console cache:clear
+```
+
+Your plugin also appears under **Admin → Plugins**, where it can be activated from the interface instead.
+
+## Testing
+
+Generated plugins come with a test suite that boots a real forumify application, so it needs a database.
+It includes a test asserting your plugin is registered and boots, which is a useful canary while you set things up.
+The connection string lives in `.env` and defaults to `mysql://root:root@127.0.0.1:3306/plugin_test`.
+
+```
+$ make tests          # prepare the database, then run phpunit
+$ make run-tests      # just phpunit, when the database is already set up
+```
+
+Tests are split in two:
+
+- `tests/Tests/Unit` — no kernel, no database, fast.
+- `tests/Tests/Application` — boots forumify and makes real requests.
+
+forumify ships the plumbing under the `Forumify\Testing` namespace: the test kernel, the test configuration, and factories for forumify's own entities.
+Your `tests/` directory only holds your own tests.
+
+```php
+use Forumify\Testing\Factories\Core\UserFactory;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+
+class TodoControllerTest extends WebTestCase
+{
+    public function testItLoads(): void
+    {
+        $client = static::createClient();
+        UserFactory::createOne(['username' => 'tester']);
+
+        $client->request('GET', '/todo');
+
+        self::assertResponseIsSuccessful();
+    }
+}
+```
+
+For API resources, extend `Forumify\Testing\Api\ApiTestCase` and use the CRUD traits, which cover the standard operations for you.
+
+## Migrations
+
+After changing an entity, generate a migration:
+
+```
+$ make migration
+```
+
+Review the generated file before committing it, and keep later migrations in the same namespace as your first one.
+forumify registers your migrations directory under the namespace the files declare, and that name is stored in the database as part of the executed versions, so renaming it later would make doctrine re-run migrations that have already been applied.
+
+## Publishing
+
+1. Push the repository to GitHub.
+2. Submit it to [Packagist](https://packagist.org/packages/submit).
+3. Tag a release. Users install it with `composer require acme/todo-plugin`.
+
+### Learn more
+
+- <Link href="/guides/customization/introduction">Customization Introduction</Link>
+- <Link href="/guides/customization/entities">Entities</Link>
+- <Link href="/guides/customization/admin-crud">Admin CRUD</Link>
+- [The plugin skeleton](https://github.com/forumify/plugin-skeleton)

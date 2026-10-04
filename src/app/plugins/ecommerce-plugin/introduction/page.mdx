@@ -1,0 +1,268 @@
+import GuideNavigator from '@/components/GuideNavigator';
+import Alert from '@/components/Alert';
+import {
+    Rocket,
+    Wrench,
+    CreditCard,
+    Package,
+    Tag,
+    Truck,
+    Medal,
+    Receipt,
+    ArrowsClockwise,
+    ArrowUUpLeft,
+    Storefront,
+    SquaresFour,
+    Bell,
+    Lifebuoy
+} from '@phosphor-icons/react/dist/ssr';
+
+# Introduction
+
+The Ecommerce plugin turns your forumify community into a shop. You can sell one-off products and
+recurring subscriptions, take payments through Stripe, and hand out roles and badges to the people who buy
+them — all without leaving your admin panel.
+
+It is built for the things communities actually sell:
+
+- **Donations and supporter ranks** — a monthly subscription that grants a "Supporter" role and badge, and
+  takes them back when the subscription ends.
+- **Digital goods** — in-game items, server perks, or downloads that an admin hands over by hand.
+- **Merchandise** — physical goods with a shipping address collected at checkout.
+- **Services and licenses** — anything delivered by an integration after payment.
+
+# Installation
+
+Package name for manual installation: `forumify/forumify-ecommerce-plugin`
+
+Once the plugin is installed and activated, an **Ecommerce** section appears in your admin panel.
+
+# How it fits together
+
+Three ideas carry through the whole plugin. Getting them straight now makes everything else obvious.
+
+**A product has tiers, and a tier has prices.**
+
+```
+Product  "Supporter"
+  ├─ Tier  "Bronze"  ─┬─ Price  €3 / month
+  │                   └─ Price  €30 / year
+  └─ Tier  "Gold"    ─┬─ Price  €10 / month
+                      └─ Price  €100 / year
+```
+
+A **product** is the thing you sell. A **tier** is a variant of it — Bronze and Gold, or Free and Premium.
+A **price** is one way to pay for a tier. Customers pick a tier, then pick how they want to be billed.
+
+**An order is one purchase of one price.** There is no shopping cart: each order is a single product, at a
+single price, paid in one go. A subscription produces a new order every time it renews, so the order list
+is also your payment history.
+
+**Paid is not the same as completed.** *Paid* means the money arrived. *Completed* means the customer has
+what they bought. For an instant download those happen at the same moment; for a hoodie you have to ship,
+the order sits in between and waits for you.
+
+<Alert severity="info">
+    Everything that happens to money is reported by your payment provider, not decided by the store.
+    When Stripe says a payment succeeded, failed, renewed or was refunded, the store follows. That is why
+    setting up the webhook correctly matters more than any other single step.
+</Alert>
+
+# What you need
+
+- A **payment provider account**. The plugin ships with Stripe support, which covers cards, wallets and
+  most local payment methods.
+- A **site reachable over HTTPS**, so your provider can send webhooks to it.
+- **Background workers running** on your site (the message consumer and the scheduler). They send email
+  notifications and handle subscriptions that fall behind on payment.
+
+# Contents
+
+<div className="grid-3 gap-5">
+    <a href="/plugins/ecommerce-plugin/getting-started">
+        <div className="card">
+            <div className="card-title">
+                <div className="flex items-center">
+                    <div className="mr-5"><Rocket size={32} weight="fill" color="#ef8354" /></div>
+                    <div>Getting Started</div>
+                </div>
+            </div>
+            <div className="card-body">
+                Go from a fresh install to your first sale, in order.
+            </div>
+        </div>
+    </a>
+    <a href="/plugins/ecommerce-plugin/store-settings">
+        <div className="card">
+            <div className="card-title">
+                <div className="flex items-center">
+                    <div className="mr-5"><Wrench size={32} weight="fill" color="#ef8354" /></div>
+                    <div>Store Settings</div>
+                </div>
+            </div>
+            <div className="card-body">
+                Your currency, who can manage the store, and where customers find it.
+            </div>
+        </div>
+    </a>
+    <a href="/plugins/ecommerce-plugin/payment-providers">
+        <div className="card">
+            <div className="card-title">
+                <div className="flex items-center">
+                    <div className="mr-5"><CreditCard size={32} weight="fill" color="#ef8354" /></div>
+                    <div>Payment Providers</div>
+                </div>
+            </div>
+            <div className="card-body">
+                Connect Stripe: API keys, webhooks, and going live.
+            </div>
+        </div>
+    </a>
+    <a href="/plugins/ecommerce-plugin/products">
+        <div className="card">
+            <div className="card-title">
+                <div className="flex items-center">
+                    <div className="mr-5"><Package size={32} weight="fill" color="#ef8354" /></div>
+                    <div>Products</div>
+                </div>
+            </div>
+            <div className="card-body">
+                Categories, products, images and what customers read before they buy.
+            </div>
+        </div>
+    </a>
+    <a href="/plugins/ecommerce-plugin/tiers-and-prices">
+        <div className="card">
+            <div className="card-title">
+                <div className="flex items-center">
+                    <div className="mr-5"><Tag size={32} weight="fill" color="#ef8354" /></div>
+                    <div>Tiers &amp; Prices</div>
+                </div>
+            </div>
+            <div className="card-body">
+                Variants, one-off and recurring prices, and how to raise a price safely.
+            </div>
+        </div>
+    </a>
+    <a href="/plugins/ecommerce-plugin/fulfillment">
+        <div className="card">
+            <div className="card-title">
+                <div className="flex items-center">
+                    <div className="mr-5"><Truck size={32} weight="fill" color="#ef8354" /></div>
+                    <div>Fulfillment</div>
+                </div>
+            </div>
+            <div className="card-body">
+                How customers get what they bought, and who takes care of it.
+            </div>
+        </div>
+    </a>
+    <a href="/plugins/ecommerce-plugin/roles-and-badges">
+        <div className="card">
+            <div className="card-title">
+                <div className="flex items-center">
+                    <div className="mr-5"><Medal size={32} weight="fill" color="#ef8354" /></div>
+                    <div>Roles &amp; Badges</div>
+                </div>
+            </div>
+            <div className="card-body">
+                Sell access: grant roles and badges on purchase, revoke them when it ends.
+            </div>
+        </div>
+    </a>
+    <a href="/plugins/ecommerce-plugin/orders">
+        <div className="card">
+            <div className="card-title">
+                <div className="flex items-center">
+                    <div className="mr-5"><Receipt size={32} weight="fill" color="#ef8354" /></div>
+                    <div>Orders</div>
+                </div>
+            </div>
+            <div className="card-body">
+                Every status explained, and the day-to-day work of running the store.
+            </div>
+        </div>
+    </a>
+    <a href="/plugins/ecommerce-plugin/subscriptions">
+        <div className="card">
+            <div className="card-title">
+                <div className="flex items-center">
+                    <div className="mr-5"><ArrowsClockwise size={32} weight="fill" color="#ef8354" /></div>
+                    <div>Subscriptions</div>
+                </div>
+            </div>
+            <div className="card-body">
+                Renewals, failed payments, and cancelling from both sides.
+            </div>
+        </div>
+    </a>
+    <a href="/plugins/ecommerce-plugin/refunds">
+        <div className="card">
+            <div className="card-title">
+                <div className="flex items-center">
+                    <div className="mr-5"><ArrowUUpLeft size={32} weight="fill" color="#ef8354" /></div>
+                    <div>Refunds</div>
+                </div>
+            </div>
+            <div className="card-body">
+                Set a refund window, and handle the requests that come in.
+            </div>
+        </div>
+    </a>
+    <a href="/plugins/ecommerce-plugin/storefront">
+        <div className="card">
+            <div className="card-title">
+                <div className="flex items-center">
+                    <div className="mr-5"><Storefront size={32} weight="fill" color="#ef8354" /></div>
+                    <div>The Storefront</div>
+                </div>
+            </div>
+            <div className="card-body">
+                The shop your members see, and how it fits your theme.
+            </div>
+        </div>
+    </a>
+    <a href="/plugins/ecommerce-plugin/cms-widgets">
+        <div className="card">
+            <div className="card-title">
+                <div className="flex items-center">
+                    <div className="mr-5"><SquaresFour size={32} weight="fill" color="#ef8354" /></div>
+                    <div>CMS Widgets</div>
+                </div>
+            </div>
+            <div className="card-body">
+                Build your own landing page with products, pricing tables and buy buttons.
+            </div>
+        </div>
+    </a>
+    <a href="/plugins/ecommerce-plugin/notifications">
+        <div className="card">
+            <div className="card-title">
+                <div className="flex items-center">
+                    <div className="mr-5"><Bell size={32} weight="fill" color="#ef8354" /></div>
+                    <div>Notifications</div>
+                </div>
+            </div>
+            <div className="card-body">
+                Which emails go out, to whom, and when.
+            </div>
+        </div>
+    </a>
+    <a href="/plugins/ecommerce-plugin/troubleshooting">
+        <div className="card">
+            <div className="card-title">
+                <div className="flex items-center">
+                    <div className="mr-5"><Lifebuoy size={32} weight="fill" color="#ef8354" /></div>
+                    <div>Troubleshooting</div>
+                </div>
+            </div>
+            <div className="card-body">
+                Stuck orders, missing webhooks, and other things that go wrong.
+            </div>
+        </div>
+    </a>
+</div>
+
+<GuideNavigator
+    next={{ href: '/plugins/ecommerce-plugin/getting-started', label: 'Getting Started' }}
+/>

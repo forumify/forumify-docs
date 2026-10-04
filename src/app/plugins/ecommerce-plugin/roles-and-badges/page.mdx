@@ -1,0 +1,115 @@
+import GuideNavigator from '@/components/GuideNavigator';
+import Alert from '@/components/Alert';
+
+# Roles &amp; Badges
+
+A product can hand out forumify **roles** and **badges** when someone buys it, and take them back when their
+subscription ends or their order is refunded. This is how you sell access: supporter ranks, private forums,
+donator perks, premium sections.
+
+# Setting it up
+
+On the product form:
+
+- **Grant roles** — the roles a buyer receives once they have paid.
+- **Grant badges** — the badges a buyer receives once they have paid.
+
+![Granted roles and badges](/user-manual/plugins/ecommerce-plugin/product-grants.png)
+
+Both accept several at once. System roles cannot be granted.
+
+<Alert severity="info">
+    Granting is independent of the fulfillment type and <strong>stacks with it</strong>. A hoodie can be
+    shipped by hand <em>and</em> grant a "Supporter" badge. A product does not have to choose.
+</Alert>
+
+# When they are granted
+
+The moment the **payment arrives** — not when you complete the order. Someone who buys a shipped product
+that also grants a role gets the role immediately, and waits for the parcel separately.
+
+A granted badge also sends the platform's usual "you earned a badge" notification, so it shows up the same
+way badges awarded any other way do.
+
+Free products grant too: a free tier still produces an order, and that order still grants.
+
+# When they are taken back
+
+<table>
+    <thead>
+        <tr>
+            <th>What happens</th>
+            <th>Effect</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>A <strong>subscription ends</strong></td>
+            <td>That subscription's roles and badges are revoked</td>
+        </tr>
+        <tr>
+            <td>A <strong>one-time order is refunded</strong></td>
+            <td>That order's roles and badges are revoked</td>
+        </tr>
+        <tr>
+            <td>A <strong>subscription payment is refunded</strong></td>
+            <td>From the admin panel, the subscription ends right away and its roles and badges are revoked. From
+            Stripe's dashboard, the subscription keeps running unless Stripe ends it too</td>
+        </tr>
+        <tr>
+            <td>A subscription is <strong>cancelled</strong> but still running</td>
+            <td>Nothing yet. Access continues until the paid period ends</td>
+        </tr>
+        <tr>
+            <td>A <strong>one-time</strong> purchase</td>
+            <td>Never revoked, unless it is refunded</td>
+        </tr>
+    </tbody>
+</table>
+
+That last row matters: a one-time purchase is permanent by nature. If you want access that can be taken
+away, sell it as a subscription.
+
+## Two rules that prevent accidents
+
+The store is careful about taking things away, because a role is rarely only about the shop.
+
+**1. Roles someone already had are never taken away.** If a member already had the "Supporter" role when
+they bought a product that grants it, ending their subscription leaves it alone. The store only removes
+what it gave.
+
+**2. Overlapping purchases do not cancel each other out.** If a member has two subscriptions that both grant
+"VIP" and one ends, they keep "VIP" until the last one is gone.
+
+<Alert severity="info">
+    Each grant is recorded individually — who got what, from which order, and whether they already had it.
+    Removing a role manually in Admin Panel → Users will not confuse the store, but it also will not update
+    the store's record: if they still have an active subscription, the role is not re-granted automatically.
+</Alert>
+
+# A worked example: a supporter subscription
+
+1. Create the role and the badge you want to hand out, under **Admin Panel → Roles** and **Badges**.
+2. Give the role access to whatever it should unlock — a private forum, a CMS page, a higher upload limit.
+3. Create a product called "Supporter", fulfillment type **Delivered instantly**.
+4. Under **Grant roles** pick "Supporter". Under **Grant badges** pick your supporter badge.
+5. Add a tier "Supporter" with a recurring price of €5 per month, and maybe a yearly one at €50.
+6. Publish it.
+
+From then on: someone subscribes, gets the role and badge within seconds, keeps them as long as they keep
+paying, and loses them when the subscription ends — or when their payment keeps failing past the grace
+period.
+
+# Things to watch
+
+- **Deleting a role** that a product grants: the product simply stops granting it. Existing members keep
+  whatever they have.
+- **Changing what a product grants** only affects new purchases. Members who bought under the old setup keep
+  what they were given, and lose exactly that when their subscription ends.
+- **Do not grant an admin role from a product.** Anyone with a card could then buy their way into your admin
+  panel.
+
+<GuideNavigator
+    previous={{ href: '/plugins/ecommerce-plugin/fulfillment', label: 'Fulfillment' }}
+    next={{ href: '/plugins/ecommerce-plugin/orders', label: 'Orders' }}
+/>

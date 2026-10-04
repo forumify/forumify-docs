@@ -1,0 +1,196 @@
+import GuideNavigator from '@/components/GuideNavigator';
+import Alert from '@/components/Alert';
+
+# Store Settings
+
+Everything that applies to the store as a whole: what you charge in, who can manage it, and where your
+members find it.
+
+# Configuration
+
+**Admin Panel → Ecommerce → Configuration**
+
+![Ecommerce configuration](/user-manual/plugins/ecommerce-plugin/configuration.png)
+
+- **Store currency**: all prices in your store use this currency.
+
+That is the whole page, on purpose. A store has one currency, and it is stamped onto every price you create.
+
+## About the currency
+
+Available currencies: AUD, BRL, CAD, CHF, CNY, CZK, DKK, EUR, GBP, HKD, INR, JPY, KRW, MXN, NOK, NZD, PLN,
+SEK, SGD, USD and ZAR.
+
+<Alert severity="warning">
+    Changing the currency later does <strong>not</strong> convert anything. Existing prices keep the
+    currency they were created with, so you would end up with a store selling in two currencies at once.
+    Decide on it before you create prices.
+</Alert>
+
+Your payment provider has to support the currency you pick. If it does not, checkout fails at the provider
+and the order is marked as failed.
+
+# Permissions
+
+Store permissions work like every other permission in forumify: you grant them to roles under
+**Admin Panel → Roles**. Super-admins always have all of them.
+
+<table>
+    <thead>
+        <tr>
+            <th>Permission</th>
+            <th>Lets a role</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>ecommerce.admin.view</code></td>
+            <td>See the Ecommerce section in the admin panel. Everything else needs this too.</td>
+        </tr>
+        <tr>
+            <td><code>ecommerce.admin.configuration.manage</code></td>
+            <td>Change the store currency</td>
+        </tr>
+        <tr>
+            <td><code>ecommerce.admin.payment_providers.manage</code></td>
+            <td>Connect and edit payment providers, including their API keys</td>
+        </tr>
+        <tr>
+            <td><code>ecommerce.admin.categories.view</code> / <code>.manage</code></td>
+            <td>See / create, edit and delete categories</td>
+        </tr>
+        <tr>
+            <td><code>ecommerce.admin.products.view</code> / <code>.manage</code></td>
+            <td>See / create, edit and delete products, tiers, prices and images</td>
+        </tr>
+        <tr>
+            <td><code>ecommerce.admin.orders.view</code></td>
+            <td>See orders and their details</td>
+        </tr>
+        <tr>
+            <td><code>ecommerce.admin.orders.fulfill</code></td>
+            <td>Mark orders as completed</td>
+        </tr>
+        <tr>
+            <td><code>ecommerce.admin.orders.refund</code></td>
+            <td>Approve and reject refund requests</td>
+        </tr>
+        <tr>
+            <td><code>ecommerce.admin.subscriptions.view</code></td>
+            <td>See subscriptions</td>
+        </tr>
+        <tr>
+            <td><code>ecommerce.admin.subscriptions.manage</code></td>
+            <td>Cancel subscriptions and mark cancellations as handled</td>
+        </tr>
+    </tbody>
+</table>
+
+Some useful combinations:
+
+- **A shipping helper**: `admin.view` + `orders.view` + `orders.fulfill`. They see what needs sending and
+  mark it done, and cannot touch prices or keys.
+- **A support moderator**: add `orders.refund` and `subscriptions.view` + `subscriptions.manage` so they can
+  answer billing questions and cancel a subscription.
+- **A shop editor**: `products.*` and `categories.*`, with no access to orders or payment providers.
+
+<Alert severity="info">
+    <strong>Payment provider credentials are sensitive.</strong> Anyone with
+    <code>payment_providers.manage</code> can replace your Stripe keys, and thereby redirect where your money
+    goes. Keep that permission on the roles you would trust with the Stripe dashboard itself.
+</Alert>
+
+# The admin menu
+
+With the plugin active, **Ecommerce** appears in the admin panel with these items. You only see the ones
+your role has permission for.
+
+![The Ecommerce admin menu](/user-manual/plugins/ecommerce-plugin/admin-menu.png)
+
+<table>
+    <thead>
+        <tr>
+            <th>Item</th>
+            <th>What it is for</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Products</strong></td>
+            <td>Your catalog: products, their tiers, prices and images</td>
+        </tr>
+        <tr>
+            <td><strong>Categories</strong></td>
+            <td>Groups that customers can filter the storefront by</td>
+        </tr>
+        <tr>
+            <td><strong>Orders</strong></td>
+            <td>Every purchase and every subscription payment</td>
+        </tr>
+        <tr>
+            <td><strong>Subscriptions</strong></td>
+            <td>Recurring purchases and their state</td>
+        </tr>
+        <tr>
+            <td><strong>Refunds</strong></td>
+            <td>Refund requests waiting for your decision</td>
+        </tr>
+        <tr>
+            <td><strong>Payment providers</strong></td>
+            <td>Stripe and any other providers you have installed</td>
+        </tr>
+        <tr>
+            <td><strong>Configuration</strong></td>
+            <td>The store currency</td>
+        </tr>
+    </tbody>
+</table>
+
+Three of these show a **number in brackets** when something is waiting for you:
+
+- **Orders (3)** — three paid orders still need to be fulfilled.
+- **Refunds (1)** — one refund request has not been decided.
+- **Subscriptions (2)** — two cancellations still need to be closed out by hand.
+
+# Where customers find the store
+
+Nothing links to the store until you add it yourself. That is deliberate: your menu is where you decide what
+members see, and the plugin does not force an entry into it.
+
+**Admin Panel → Menu Builder**, add a menu item:
+
+- **Type**: Route
+- **Route**: `ecommerce_store`
+- **Label**: whatever fits your community — "Store", "Shop", "Support us"
+
+You can also link to a single product (`/store/your-product-slug`), or to a CMS page you built yourself with
+the [Ecommerce widgets](/plugins/ecommerce-plugin/cms-widgets). Because the menu carries permissions, you can
+also limit who sees the entry — a members-only shop is just a menu item restricted to a role.
+
+<Alert severity="info">
+    Menu permissions hide the <em>link</em>, not the pages. The storefront itself is public, so anyone with
+    the URL can reach it. Checkout always requires a login.
+</Alert>
+
+## Customers find their own purchases at `/store/orders`
+
+Logged-in members get a **My purchases** button at the top of the store catalog, where they see their
+subscriptions and their whole payment history. It is worth adding to your member menu as well if you sell subscriptions — it is the page
+where they cancel, download invoices and fix a failed payment.
+
+# Background workers
+
+Two parts of the store run in the background and need your site's workers to be running:
+
+- **The message consumer** sends notification emails. Without it, nothing in the store fails, but your
+  customers never receive their confirmations.
+- **The scheduler** ends subscriptions whose grace period has run out and sends reminders about
+  cancellations that still need handling.
+
+If your site is hosted on forumify cloud this is already taken care of. On a self-hosted install, see the
+[self-hosting guide](/guides/self-hosting).
+
+<GuideNavigator
+    previous={{ href: '/plugins/ecommerce-plugin/getting-started', label: 'Getting Started' }}
+    next={{ href: '/plugins/ecommerce-plugin/payment-providers', label: 'Payment Providers' }}
+/>
